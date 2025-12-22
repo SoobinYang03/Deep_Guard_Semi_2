@@ -6,6 +6,7 @@ import subprocess
 class deepguard_dynamic_analyzer:
     def __init__(self):
         # 에뮬레이터의 설정을 입력하는 부분.
+        #self.device_name = device_name - 에뮬레이터 이름 결정 후 입력.
         self.emulator_status = False
 
     #1. 정적분석 데이터 수신(동균님과 협업이 필요)
@@ -33,10 +34,48 @@ class deepguard_dynamic_analyzer:
         print(">> 환경 구동 및 앱 실행 완료")
 
     #4. 로그캣으로 로그 전체 가져오기.
-    def extract_logcat(self):
+    def extract_logcat(self, output_file="logcat_result.txt"):
         print("Logcat 데이터 수집를 수집중입니다.")
 
-        raw_logs = "System Log: Application Started... "
+        raw_logs = ""
+
+        if not getattr(self, 'device_name', None):
+            print("에뮬레이터 연결이 필요합니다.")
+            return "emulator name not set"
+
+        try:
+            print("기존 로그를 초기화합니다.")
+            subprocess.run(["adb", "-s", self.device_name, "logcat", "-c"], check=True)
+
+            print(f"{self.device_name}에서 로그를 추출합니다.")
+            command = ["adb", "-s", self.device_name, "logcat", "-d"]
+
+            result = subprocess.run(command, capture_output=True, text=True, check=True)
+            raw_logs = result.stdout
+
+            if raw_logs:
+                with open(output_file, "w", encoding="utf-8") as f:
+                    f.write(result.stdout)
+                print(f"{len(raw_logs)} 바이트의 로그를 추출하여 '{output_file}'에 저장했습니다.")
+
+            else:
+                print("수집된 로그가 비어 있습니다.")
+                raw_logs = "empty logs"
+
+        except subprocess.CalledProcessError as e:
+            error_message = f"ADB 명령 실행 중 오류 발생. {e}"
+            print(f"{error_message}")
+            raw_logs = error_message
+
+        except FileNotFoundError:
+            error_message = "adb 명령 자체를 찾을 수 없습니다. 환경 변수 설정을 확인해주세요."
+            print(f"{error_message}")
+            raw_logs = error_message
+
+        except Exception as e:
+            error_message = f"예상치 못한 오류 발생 {e}"
+            print(f"{error_message}")
+            raw_logs = error_message
 
         return raw_logs
 
@@ -73,7 +112,7 @@ class deepguard_dynamic_analyzer:
 
         #5 함수 실행
         final_json = self.result_json(logs)
-        print("\n--- 최종 결과물 ---")
+        print("\n최종 결과물")
         print(final_json)
         return final_json
 
