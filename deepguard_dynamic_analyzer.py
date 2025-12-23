@@ -4,10 +4,15 @@ import subprocess
 
 
 class deepguard_dynamic_analyzer:
-    def __init__(self):
-        # 에뮬레이터의 설정을 입력하는 부분.
-        #self.device_name = device_name - 에뮬레이터 이름 결정 후 입력.
+       def __init__(self, mobsf_emulator="127.0.0.1:5555"):
+
+        print("딥가드 동적 분석기 초기화.")
+
+        self.device_name = mobsf_emulator
         self.emulator_status = False
+        self.frida_status = False
+
+        print(f"분석기 초기화 완료: 타겟 디바이스 -{self.device_name}")
 
     #1. 정적분석 데이터 수신(동균님과 협업이 필요)
     def receive_static_result(self, static_data):
@@ -140,3 +145,4 @@ if __name__ == "__main__":
 
     dummy_static_result = {"file_name": "test.apk", "result": "success"}
     analyzer.dynamic_controller("C:/apk/test.apk", dummy_static_result)
+
