@@ -177,22 +177,22 @@ class deepguard_dynamic_analyzer:
     #컨트롤러
     def dynamic_controller(self, apk_path, static_result_input):
 
-        #1 함수 실행
+        #api1. 정적분석 수신 실행
         data = self.receive_static_result(static_result_input)
 
-        #2 함수 실행
+        #api2. 수신결과 파싱 실행
         should_run = self.parse_static_result(data)
 
         if not should_run:
-            return {"msg": "Stopped by Static Analysis Result"}
+            return {"msg": "정적분석 결과가 충분하여 동적분석의 동작을 중지합니다."}
 
-        #3 함수 실행
+        #api3. MobSF에서 에뮬레이터 구동 및 Frida. APK파일 실행
         self.dynamic_environment(apk_path)
 
-        #4 함수 실행
+        #api4. log추출 실행.
         logs = self.extract_logcat()
 
-        #5 함수 실행
+        #api5. 결과물을 deepguard의 통합 schema에 맞게 정리 실행.
         final_json = self.result_json(logs)
         print("\n최종 결과물")
         print(final_json)
@@ -205,5 +205,6 @@ if __name__ == "__main__":
 
     dummy_static_result = {"file_name": "test.apk", "result": "success"}
     analyzer.dynamic_controller("C:/apk/test.apk", dummy_static_result)
+
 
 
