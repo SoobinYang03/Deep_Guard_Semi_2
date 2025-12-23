@@ -79,17 +79,34 @@ class deepguard_dynamic_analyzer:
 
         return raw_logs
 
-    #5. 결과물 반환.
-    def result_json(self, raw_logs):
-        print("최종 결과를 JSON파일로 반환합니다.")
+    # 5. 결과물 반환 ( 통합 스키마 적용 및 DEX 덤프 경로 추가)
+    def result_json(self, raw_logs, dumped_dex_path=None):
+        print(">> [API 5] 최종 결과를 JSON 형식으로 포장합니다.")
 
+        # 1. 분석 상태 판단 (덤프된 DEX 파일이 존재하면 '성공'으로 간주)
+        status_code = "success" if dumped_dex_path else "fail"
+        
+        # 2. 로그 요약 (너무 길면 DB에 안 들어가므로 앞부분만 자름)
+        log_summary = raw_logs[:500] + "..." if raw_logs and len(raw_logs) > 500 else raw_logs
+
+        # 3. 딥가드 통합 스키마 (DeepGuard Schema) 맞춤
         result_schema = {
-            "analyzer": "dynamic_analyze",
-            "timestamp": time.time(),
-            "logs": raw_logs,
-            "status": "complete"
+            "analyzer_type": "dynamic",         # 분석기 종류: 동적 분석
+            "timestamp": time.time(),           # 분석 완료 시간
+            "status": status_code,              # 분석 성공 여부 (success/fail)
+            
+            # [핵심 데이터 영역]
+            "result_data": {
+                "is_rooted_bypass": True,           # 프리다 우회 시도 여부
+                "dumped_dex_path": dumped_dex_path, # 추출된 악성코드 파일 경로 (지금은 None)
+                "log_summary": log_summary          # 로그 요약
+            },
+            
+            # 전체 로그 파일이 저장된 경로
+            "full_log_file": "logcat_result.txt"
         }
 
+        # 4. JSON 변환
         return json.dumps(result_schema, indent=4, ensure_ascii=False)
 
     #컨트롤러
