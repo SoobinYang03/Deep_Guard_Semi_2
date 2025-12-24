@@ -1,0 +1,11 @@
+paths:
+  out_dir: "out"
+  work_dir: "out/work"
+
+tools:
+  aapt_bin: "/Users/goorm/Library/Android/sdk/build-tools/36.1.0/aapt"
+  jadx_bin: "jadx"
+  apktool_bin: "apktool"
+  apkid_bin: "apkid"
+  strings_bin: "strings"
+  aapt_bin: "/Users/goorm/Library/Android/sdk/build-tools/36.1.0/aapt"
