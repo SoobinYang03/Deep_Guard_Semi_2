@@ -79,34 +79,37 @@ class deepguard_dynamic_analyzer:
 
         return raw_logs
 
-    # 5. 결과물 반환 ( 통합 스키마 적용 및 DEX 덤프 경로 추가)
+   # 5. 결과물 반환 (철호님 피드백 반영: 덤프 없어도 로그 있으면 성공)
     def result_json(self, raw_logs, dumped_dex_path=None):
         print(">> [API 5] 최종 결과를 JSON 형식으로 포장합니다.")
 
-        # 1. 분석 상태 판단 (덤프된 DEX 파일이 존재하면 '성공'으로 간주)
-        status_code = "success" if dumped_dex_path else "fail"
+        # [수정된 핵심 로직]
+        # 1. 덤프 파일 유무가 아니라, 로그 수집 과정에서 '치명적인 에러'가 있었는지를 봅니다.
+        # 2. 로그가 비어있거나, 에뮬레이터 연결 에러가 명시된 경우만 'fail'
+        if raw_logs is None or "emulator name not set" in raw_logs or "adb 명령 자체를 찾을 수 없습니다" in raw_logs:
+             status_code = "fail"
+        else:
+             # 덤프 파일(dumped_dex_path)이 None이어도, 로그가 정상 수집되었다면 분석은 '성공'입니다.
+             status_code = "success"
         
-        # 2. 로그 요약 (너무 길면 DB에 안 들어가므로 앞부분만 자름)
+        # 로그 요약 (DB 저장용으로 너무 길지 않게 자름)
         log_summary = raw_logs[:500] + "..." if raw_logs and len(raw_logs) > 500 else raw_logs
 
-        # 3. 딥가드 통합 스키마 (DeepGuard Schema) 맞춤
+        # 딥가드 통합 스키마
         result_schema = {
-            "analyzer_type": "dynamic",         # 분석기 종류: 동적 분석
-            "timestamp": time.time(),           # 분석 완료 시간
-            "status": status_code,              # 분석 성공 여부 (success/fail)
+            "analyzer_type": "dynamic",
+            "timestamp": time.time(),
+            "status": status_code,  
             
-            # [핵심 데이터 영역]
             "result_data": {
-                "is_rooted_bypass": True,           # 프리다 우회 시도 여부
-                "dumped_dex_path": dumped_dex_path, # 추출된 악성코드 파일 경로 (지금은 None)
-                "log_summary": log_summary          # 로그 요약
+                "is_rooted_bypass": True,           
+                "dumped_dex_path": dumped_dex_path, # 없으면 null로 나가지만 status는 success가 될 수 있음
+                "log_summary": log_summary
             },
             
-            # 전체 로그 파일이 저장된 경로
             "full_log_file": "logcat_result.txt"
         }
 
-        # 4. JSON 변환
         return json.dumps(result_schema, indent=4, ensure_ascii=False)
 
     #컨트롤러
