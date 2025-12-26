@@ -1,7 +1,7 @@
 import json
 import time
 import subprocess
-
+import os
 
 class deepguard_dynamic_analyzer:
        def __init__(self, mobsf_emulator="127.0.0.1:5555"):
@@ -30,13 +30,73 @@ class deepguard_dynamic_analyzer:
         print("정적 분석에서 오류를 발견하지 못했습니다. 동적 분석을 진행합니다.")
         return True
 
+    #3-a apk파일의 패키지 이름 추출
+    def get_package_name(self, apk_path):
+        try:
+            result = subprocess.run(["aapt", "dump", "badging", apk_path], capture_output=True, text=True, encoding='utf-8')
+
+            for line in result.stdout.splitlines():
+
+                if line.startswith("package: name="):
+                    return line.split("'")[1]
+
+        except Exception as e:
+            print(f"패키지 이름 추출 실패: {e}")
+            return None
+
     #3. 환경 구성. 에뮬 실행 및 frida 실행
     def dynamic_environment(self, apk_path):
         print(f"안드로이드 에뮬레이터 및 Frida 환경 구동 시작 ({apk_path})")
 
+        try:
+            print(f"분석 에뮬레이터 구동{self.device_name}")
+            subprocess.run(["adb", "connect", self.device_name], capture_output = True)
+            self.emulator_status = True
 
-        time.sleep(2)
-        print(">> 환경 구동 및 앱 실행 완료")
+            check_frida = subprocess.run(["adb", "-s", self.device_name, "shell", "ps | grep frida"], capture_output=True, text=True)
+
+            if "frida" in check_frida.stdout:
+                print("Frida 서버를 실행합니다.")
+            subprocess.Popen(["adb", "-s", self.device_name, "shell", "su -c /data/local/tmp/re_frida_server &"], shell = True, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
+
+            time.sleep(2)
+
+            self.frida_status = True
+            print("Frida 서버 준비 완료.")
+
+            #
+            #
+            #
+            #
+            #
+
+            if not os.path.exists(apk_path):
+                print(f"APK 파일을 찾을 수 없습니다. : {apk_path}")
+                return False
+
+            print(f"APK 설치 시작: {os.path.basename(apk_path)}")
+            subprocess.run(["adb", "-s", self.device_name, "install", "-r", apk_path], check=True)
+            print("APK 설치 완료.")
+
+
+            package_name = self.get_package_name(apk_path)
+            if package_name:
+                print(f"앱 실행 중: {package_name}")
+                subprocess.run(["adb", "-s", self.device_name, "shell", "monkey", "-p", package_name, "-c",
+                            "android.intent.category.LAUNCHER", "1"],
+                           capture_output=True)
+                print(f"환경 구동 및 앱 실행 완료.")
+            else:
+                print("패키지명을 찾을 수 없습니다.")
+
+            return True
+
+        except subprocess.CalledProcessError as e:
+            print(f"ADB 명령 실패: {e}")
+            return False
+        except Exception as e:
+            print(f"예상치 못한 오류 발생: {e}")
+            return False
 
     #4. 로그캣으로 로그 전체 가져오기.
     def extract_logcat(self, output_file="logcat_result.txt"):
@@ -120,22 +180,22 @@ class deepguard_dynamic_analyzer:
     #컨트롤러
     def dynamic_controller(self, apk_path, static_result_input):
 
-        #1 함수 실행
+        #api1. 정적분석 수신 실행
         data = self.receive_static_result(static_result_input)
 
-        #2 함수 실행
+        #api2. 수신결과 파싱 실행
         should_run = self.parse_static_result(data)
 
         if not should_run:
-            return {"msg": "Stopped by Static Analysis Result"}
+            return {"msg": "정적분석 결과가 충분하여 동적분석의 동작을 중지합니다."}
 
-        #3 함수 실행
+        #api3. MobSF에서 에뮬레이터 구동 및 Frida. APK파일 실행
         self.dynamic_environment(apk_path)
 
-        #4 함수 실행
+        #api4. log추출 실행.
         logs = self.extract_logcat()
 
-        #5 함수 실행
+        #api5. 결과물을 deepguard의 통합 schema에 맞게 정리 실행.
         final_json = self.result_json(logs)
         print("\n최종 결과물")
         print(final_json)
@@ -148,4 +208,6 @@ if __name__ == "__main__":
 
     dummy_static_result = {"file_name": "test.apk", "result": "success"}
     analyzer.dynamic_controller("C:/apk/test.apk", dummy_static_result)
+
+
 
