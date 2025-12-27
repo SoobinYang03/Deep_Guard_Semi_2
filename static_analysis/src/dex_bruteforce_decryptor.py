@@ -13,6 +13,8 @@ from Crypto.Cipher import AES, DES, DES3, Blowfish, ARC4
 from Crypto.Util.Padding import unpad
 import struct
 
+from logger_config import LoggerConfig
+
 
 class DexBruteforceDecryptor:
     """
@@ -35,19 +37,7 @@ class DexBruteforceDecryptor:
         self.key_to_string_map = {}  # 키 -> 원본 문자열 매핑
         
         # 로깅 설정
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
-        
-        # 콘솔 핸들러 설정
-        if not self.logger.handlers:
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.INFO)
-            formatter = logging.Formatter(
-                '%(asctime)s - %(levelname)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
-            )
-            console_handler.setFormatter(formatter)
-            self.logger.addHandler(console_handler)
+        self.logger = LoggerConfig.get_simple_logger(__name__, level=logging.INFO)
         
     def load_strings_from_report(self) -> Set[str]:
         """

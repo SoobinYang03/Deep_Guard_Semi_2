@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Dict, Optional
 from dotenv import load_dotenv
 
+from logger_config import LoggerConfig
+
 
 class MobSFAnalyzer:
     """MobSF API를 활용한 APK 분석 클래스"""
@@ -30,20 +32,7 @@ class MobSFAnalyzer:
         self.headers = {'Authorization': api_key} if api_key else {}
         
         # 로깅 설정
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        
-        # 콘솔 핸들러 설정
-        if not self.logger.handlers:
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
-            )
-            console_handler.setFormatter(formatter)
-            self.logger.addHandler(console_handler)
-        
+        self.logger = LoggerConfig.get_logger(__name__, level=logging.DEBUG)
         
         self.logger.info(f"MobSF Analyzer 초기화 완료")
         self.logger.info(f"서버 URL: {self.server_url}")
