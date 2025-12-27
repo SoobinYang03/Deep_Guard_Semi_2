@@ -1,0 +1,1334 @@
+{
+    "version": "v4.4.4",
+    "title": "Static Analysis",
+    "file_name": "sample.apk",
+    "app_name": "My Scan APP",
+    "app_type": "apk",
+    "size": "33.5MB",
+    "md5": "f90f81f7b47ca73de0e5aa5aaeba6735",
+    "sha1": "f5c894ac5aeb6f23953b0dad7ff57dc937d95149",
+    "sha256": "82d644a1f3bba120327e7eb6029f6b986c95c35f0c40cd43001f2dbedee2ee6f",
+    "package_name": "com.ldjSxw.heBbQd",
+    "main_activity": "com.ldjSxw.heBbQd.IntroActivity",
+    "exported_activities": "['com.ldjSxw.heBbQd.ResultActivity', 'com.ldjSxw.heBbQd.ScanActivity']",
+    "browsable_activities": {
+        "com.ldjSxw.heBbQd.ScanActivity": {
+            "schemes": [
+                "openscan://"
+            ],
+            "mime_types": [],
+            "hosts": [],
+            "ports": [],
+            "paths": [],
+            "path_prefixs": [],
+            "path_patterns": [],
+            "browsable": true,
+            "well_known": {}
+        }
+    },
+    "activities": [
+    ],
+    "receivers": [
+    ],
+    "providers": [
+    ],
+    "services": [
+    ],
+    "libraries": [],
+    "target_sdk": "28",
+    "max_sdk": "",
+    "min_sdk": "23",
+    "version_name": "2.0",
+    "version_code": "20",
+    "icon_path": "f90f81f7b47ca73de0e5aa5aaeba6735-icon.png",
+    "permissions": {
+        "android.permission.INTERNET": {
+            "status": "normal",
+            "info": "full Internet access",
+            "description": "Allows an application to create network sockets."
+        },
+        "android.permission.ACCESS_WIFI_STATE": {
+            "status": "normal",
+            "info": "view Wi-Fi status",
+            "description": "Allows an application to view the information about the status of Wi-Fi."
+        },
+        "android.permission.ACCESS_NETWORK_STATE": {
+            "status": "normal",
+            "info": "view network status",
+            "description": "Allows an application to view the status of all networks."
+        },
+        "android.permission.REQUEST_INSTALL_PACKAGES": {
+            "status": "dangerous",
+            "info": "Allows an application to request installing packages.",
+            "description": "Malicious applications can use this to try and trick users into installing additional malicious packages."
+        },
+        "android.permission.FOREGROUND_SERVICE": {
+            "status": "normal",
+            "info": "enables regular apps to use Service.startForeground.",
+            "description": "Allows a regular application to use Service.startForeground."
+        },
+        "android.permission.REQUEST_DELETE_PACKAGES": {
+            "status": "normal",
+            "info": "enables an app to request package deletions.",
+            "description": "Allows an application to request deleting packages."
+        },
+        "android.permission.WRITE_EXTERNAL_STORAGE": {
+            "status": "dangerous",
+            "info": "read/modify/delete external storage contents",
+            "description": "Allows an application to write to external storage."
+        },
+        "android.permission.READ_EXTERNAL_STORAGE": {
+            "status": "dangerous",
+            "info": "read external storage contents",
+            "description": "Allows an application to read from external storage."
+        },
+        "android.permission.DISABLE_KEYGUARD": {
+            "status": "normal",
+            "info": "disable keyguard",
+            "description": "Allows applications to disable the keyguard if it is not secure."
+        },
+        "android.permission.BOOT_COMPLETED": {
+            "status": "unknown",
+            "info": "Unknown permission",
+            "description": "Unknown permission from android reference"
+        },
+        "android.permission.WAKE_LOCK": {
+            "status": "normal",
+            "info": "prevent phone from sleeping",
+            "description": "Allows an application to prevent the phone from going to sleep."
+        },
+        "android.permission.GET_TASKS": {
+            "status": "dangerous",
+            "info": "retrieve running applications",
+            "description": "Allows application to retrieve information about currently and recently running tasks. May allow malicious applications to discover private information about other applications."
+        },
+        "android.permission.BROADCAST_STICKY": {
+            "status": "normal",
+            "info": "send sticky broadcast",
+            "description": "Allows an application to send sticky broadcasts, which remain after the broadcast ends. Malicious applications can make the phone slow or unstable by causing it to use too much memory."
+        },
+        "android.permission.CHANGE_WIFI_STATE": {
+            "status": "normal",
+            "info": "change Wi-Fi status",
+            "description": "Allows an application to connect to and disconnect from Wi-Fi access points and to make changes to configured Wi-Fi networks."
+        },
+        "android.permission.VIBRATE": {
+            "status": "normal",
+            "info": "control vibrator",
+            "description": "Allows the application to control the vibrator."
+        },
+        "android.permission.RECEIVE_USER_PRESENT": {
+            "status": "unknown",
+            "info": "Unknown permission",
+            "description": "Unknown permission from android reference"
+        },
+        "android.permission.MODIFY_AUDIO_SETTINGS": {
+            "status": "normal",
+            "info": "change your audio settings",
+            "description": "Allows application to modify global audio settings, such as volume and routing."
+        },
+        "android.permission.ACCESS_FINE_LOCATION": {
+            "status": "dangerous",
+            "info": "fine (GPS) location",
+            "description": "Access fine location sources, such as the Global Positioning System on the phone, where available. Malicious applications can use this to determine where you are and may consume additional battery power."
+        },
+        "android.permission.ACCESS_COARSE_LOCATION": {
+            "status": "dangerous",
+            "info": "coarse (network-based) location",
+            "description": "Access coarse location sources, such as the mobile network database, to determine an approximate phone location, where available. Malicious applications can use this to determine approximately where you are."
+        },
+        "com.google.android.c2dm.permission.RECEIVE": {
+            "status": "normal",
+            "info": "recieve push notifications",
+            "description": "Allows an application to receive push notifications from cloud."
+        },
+        "com.ldjSxw.heBbQd.permission.C2D_MESSAGE": {
+            "status": "unknown",
+            "info": "Unknown permission",
+            "description": "Unknown permission from android reference"
+        },
+        "android.permission.READ_PHONE_STATE": {
+            "status": "dangerous",
+            "info": "read phone state and identity",
+            "description": "Allows the application to access the phone features of the device. An application with this permission can determine the phone number and serial number of this phone, whether a call is active, the number that call is connected to and so on."
+        }
+    },
+    "malware_permissions": {
+        "top_malware_permissions": [
+            "android.permission.INTERNET",
+            "android.permission.ACCESS_WIFI_STATE",
+            "android.permission.ACCESS_NETWORK_STATE",
+            "android.permission.REQUEST_INSTALL_PACKAGES",
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WAKE_LOCK",
+            "android.permission.GET_TASKS",
+            "android.permission.VIBRATE",
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.READ_PHONE_STATE"
+        ],
+        "other_abused_permissions": [
+            "android.permission.FOREGROUND_SERVICE",
+            "android.permission.BROADCAST_STICKY",
+            "android.permission.CHANGE_WIFI_STATE",
+            "android.permission.MODIFY_AUDIO_SETTINGS",
+            "com.google.android.c2dm.permission.RECEIVE"
+        ],
+        "total_malware_permissions": 25,
+        "total_other_permissions": 44
+    },
+    "certificate_analysis": {
+        "certificate_info": "Binary is signed\nv1 signature: True\nv2 signature: True\nv3 signature: False\nv4 signature: False\nX.509 Subject: C=CN, ST=Shanghai, L=ZB, O=Shanghai University, OU=NC, CN=tmp\nSignature Algorithm: rsassa_pkcs1v15\nValid From: 2023-10-16 12:18:00+00:00\nValid To: 2123-09-22 12:18:00+00:00\nIssuer: C=CN, ST=Shanghai, L=ZB, O=Shanghai University, OU=NC, CN=tmp\nSerial Number: 0xa2cda5f\nHash Algorithm: sha256\nmd5: 7eb61921f7d6a137681b91903163044f\nsha1: 85e7916ac9aa2a5700f73140a9e40fa4ac0abab1\nsha256: 006a72fa8f6dc3e38ebe32189d2101c191671bef63ed9eb919ccab20080bded3\nsha512: 7af031cfe1ba6579a87736786da1a258f985ae64ae68825d60cd5da70838421275c11773dce4150181bd84d4411a9836baf4b7307cf8f2f289993af8ed9a2722\nPublicKey Algorithm: rsa\nBit Size: 2048\nFingerprint: dd8f6a3567c31bb2e77b04e031044b734f0b13e1b68832daed4e36bf43615304\nFound 1 unique certificates",
+        "certificate_findings": [
+            [
+                "info",
+                "Application is signed with a code signing certificate",
+                "Signed Application"
+            ],
+            [
+                "warning",
+                "Application is signed with v1 signature scheme, making it vulnerable to Janus vulnerability on Android 5.0-8.0, if signed only with v1 signature scheme. Applications running on Android 5.0-7.0 signed with v1, and v2/v3 scheme is also vulnerable.",
+                "Application vulnerable to Janus Vulnerability"
+            ]
+        ],
+        "certificate_summary": {
+            "high": 0,
+            "warning": 1,
+            "info": 1
+        }
+    },
+    "manifest_analysis": {
+        "manifest_findings": [
+            {
+                "rule": "vulnerable_os_version",
+                "title": "App can be installed on a vulnerable unpatched Android version<br>Android 6.0-6.0.1, [minSdk=23]",
+                "severity": "high",
+                "description": "This application can be installed on an older version of android that has multiple unfixed vulnerabilities. These devices won't receive reasonable security updates from Google. Support an Android version => 10, API 29 to receive reasonable security updates.",
+                "name": "App can be installed on a vulnerable unpatched Android version 6.0-6.0.1, [minSdk=23]",
+                "component": [
+                    "6.0-6.0.1",
+                    "23"
+                ]
+            },
+            {
+                "rule": "clear_text_traffic",
+                "title": "Clear text traffic is Enabled For App<br>[android:usesCleartextTraffic=true]",
+                "severity": "high",
+                "description": "The app intends to use cleartext network traffic, such as cleartext HTTP, FTP stacks, DownloadManager, and MediaPlayer. The default value for apps that target API level 27 or lower is \"true\". Apps that target API level 28 or higher default to \"false\". The key reason for avoiding cleartext traffic is the lack of confidentiality, authenticity, and protections against tampering; a network attacker can eavesdrop on transmitted data and also modify it without being detected.",
+                "name": "Clear text traffic is Enabled For App [android:usesCleartextTraffic=true]",
+                "component": []
+            },
+            {
+                "rule": "app_is_debuggable",
+                "title": "Debug Enabled For App<br>[android:debuggable=true]",
+                "severity": "high",
+                "description": "Debugging was enabled on the app which makes it easier for reverse engineers to hook a debugger to it. This allows dumping a stack trace and accessing debugging helper classes.",
+                "name": "Debug Enabled For App [android:debuggable=true]",
+                "component": []
+            },
+            {
+                "rule": "app_allowbackup",
+                "title": "Application Data can be Backed up<br>[android:allowBackup=true]",
+                "severity": "warning",
+                "description": "This flag allows anyone to backup your application data via adb. It allows users who have enabled USB debugging to copy application data off of the device.",
+                "name": "Application Data can be Backed up [android:allowBackup=true]",
+                "component": []
+            },
+            {
+                "rule": "task_hijacking2",
+                "title": "Activity (com.ldjSxw.heBbQd.ResultActivity) is vulnerable to StrandHogg 2.0",
+                "severity": "high",
+                "description": "Activity is found to be vulnerable to StrandHogg 2.0 task hijacking vulnerability. When vulnerable, it is possible for other applications to place a malicious activity on top of the activity stack of the vulnerable application. This makes the application an easy target for phishing attacks. The vulnerability can be remediated by setting the launch mode attribute to \"singleInstance\" and by setting an empty taskAffinity (taskAffinity=\"\"). You can also update the target SDK version (28) of the app to 29 or higher to fix this issue at platform level.",
+                "name": "Activity (com.ldjSxw.heBbQd.ResultActivity) is vulnerable to StrandHogg 2.0",
+                "component": [
+                    "com.ldjSxw.heBbQd.ResultActivity"
+                ]
+            },
+            {
+                "rule": "explicitly_exported",
+                "title": "<strong>Activity</strong> (com.ldjSxw.heBbQd.ResultActivity) is not Protected. <br>[android:exported=true]",
+                "severity": "warning",
+                "description": "An Activity is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device.",
+                "name": "Activity com.ldjSxw.heBbQd.ResultActivity is not Protected. [android:exported=true]",
+                "component": [
+                    "Activity",
+                    "com.ldjSxw.heBbQd.ResultActivity"
+                ]
+            },
+            {
+                "rule": "task_hijacking2",
+                "title": "Activity (com.ldjSxw.heBbQd.ScanActivity) is vulnerable to StrandHogg 2.0",
+                "severity": "high",
+                "description": "Activity is found to be vulnerable to StrandHogg 2.0 task hijacking vulnerability. When vulnerable, it is possible for other applications to place a malicious activity on top of the activity stack of the vulnerable application. This makes the application an easy target for phishing attacks. The vulnerability can be remediated by setting the launch mode attribute to \"singleInstance\" and by setting an empty taskAffinity (taskAffinity=\"\"). You can also update the target SDK version (28) of the app to 29 or higher to fix this issue at platform level.",
+                "name": "Activity (com.ldjSxw.heBbQd.ScanActivity) is vulnerable to StrandHogg 2.0",
+                "component": [
+                    "com.ldjSxw.heBbQd.ScanActivity"
+                ]
+            },
+            {
+                "rule": "explicitly_exported",
+                "title": "<strong>Activity</strong> (com.ldjSxw.heBbQd.ScanActivity) is not Protected. <br>[android:exported=true]",
+                "severity": "warning",
+                "description": "An Activity is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device.",
+                "name": "Activity com.ldjSxw.heBbQd.ScanActivity is not Protected. [android:exported=true]",
+                "component": [
+                    "Activity",
+                    "com.ldjSxw.heBbQd.ScanActivity"
+                ]
+            },
+            {
+                "rule": "exported_protected_permission_not_defined",
+                "title": "<strong>Service</strong> (com.ldjSxw.heBbQd.iservice.TaskService) is Protected by a permission, but the protection level of the permission should be checked.<br><strong>Permission: </strong>android.permission.BIND_ACCESSIBILITY_SERVICE <br>[android:exported=true]",
+                "severity": "warning",
+                "description": "A Service is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device. It is protected by a permission which is not defined in the analysed application. As a result, the protection level of the permission should be checked where it is defined. If it is set to normal or dangerous, a malicious application can request and obtain the permission and interact with the component. If it is set to signature, only applications signed with the same certificate can obtain the permission.",
+                "name": "Service com.ldjSxw.heBbQd.iservice.TaskService is Protected by a permission, but the protection level of the permission should be checked. [<strong>Permission: </strong>android.permission.BIND_ACCESSIBILITY_SERVICE] [android:exported=true]",
+                "component": [
+                    "Service",
+                    "com.ldjSxw.heBbQd.iservice.TaskService",
+                    "<strong>Permission: </strong>android.permission.BIND_ACCESSIBILITY_SERVICE"
+                ]
+            },
+            {
+                "rule": "exported_protected_permission_not_defined",
+                "title": "<strong>Broadcast Receiver</strong> (com.google.android.gms.measurement.AppMeasurementInstallReferrerReceiver) is Protected by a permission, but the protection level of the permission should be checked.<br><strong>Permission: </strong>android.permission.INSTALL_PACKAGES <br>[android:exported=true]",
+                "severity": "warning",
+                "description": "A Broadcast Receiver is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device. It is protected by a permission which is not defined in the analysed application. As a result, the protection level of the permission should be checked where it is defined. If it is set to normal or dangerous, a malicious application can request and obtain the permission and interact with the component. If it is set to signature, only applications signed with the same certificate can obtain the permission.",
+                "name": "Broadcast Receiver com.google.android.gms.measurement.AppMeasurementInstallReferrerReceiver is Protected by a permission, but the protection level of the permission should be checked. [<strong>Permission: </strong>android.permission.INSTALL_PACKAGES] [android:exported=true]",
+                "component": [
+                    "Broadcast Receiver",
+                    "com.google.android.gms.measurement.AppMeasurementInstallReferrerReceiver",
+                    "<strong>Permission: </strong>android.permission.INSTALL_PACKAGES"
+                ]
+            },
+            {
+                "rule": "exported_protected_permission_not_defined",
+                "title": "<strong>Broadcast Receiver</strong> (com.google.firebase.iid.FirebaseInstanceIdReceiver) is Protected by a permission, but the protection level of the permission should be checked.<br><strong>Permission: </strong>com.google.android.c2dm.permission.SEND <br>[android:exported=true]",
+                "severity": "warning",
+                "description": "A Broadcast Receiver is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device. It is protected by a permission which is not defined in the analysed application. As a result, the protection level of the permission should be checked where it is defined. If it is set to normal or dangerous, a malicious application can request and obtain the permission and interact with the component. If it is set to signature, only applications signed with the same certificate can obtain the permission.",
+                "name": "Broadcast Receiver com.google.firebase.iid.FirebaseInstanceIdReceiver is Protected by a permission, but the protection level of the permission should be checked. [<strong>Permission: </strong>com.google.android.c2dm.permission.SEND] [android:exported=true]",
+                "component": [
+                    "Broadcast Receiver",
+                    "com.google.firebase.iid.FirebaseInstanceIdReceiver",
+                    "<strong>Permission: </strong>com.google.android.c2dm.permission.SEND"
+                ]
+            },
+            {
+                "rule": "explicitly_exported",
+                "title": "<strong>Service</strong> (com.google.firebase.iid.FirebaseInstanceIdService) is not Protected. <br>[android:exported=true]",
+                "severity": "warning",
+                "description": "A Service is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device.",
+                "name": "Service com.google.firebase.iid.FirebaseInstanceIdService is not Protected. [android:exported=true]",
+                "component": [
+                    "Service",
+                    "com.google.firebase.iid.FirebaseInstanceIdService"
+                ]
+            }
+        ],
+        "manifest_summary": {
+            "high": 5,
+            "warning": 7,
+            "info": 0,
+            "suppressed": 0
+        }
+    },
+    "network_security": {
+        "network_findings": [],
+        "network_summary": {}
+    },
+    "binary_analysis": [
+        {
+            "name": "lib/armeabi-v7a/libset.so",
+            "nx": {
+                "is_nx": true,
+                "severity": "info",
+                "description": "The binary has NX bit set. This marks a memory page non-executable making attacker injected shellcode non-executable."
+            },
+            "pie": {
+                "is_pie": "Dynamic Shared Object (DSO)",
+                "severity": "info",
+                "description": "The shared object is build with -fPIC flag which enables Position independent code. This makes Return Oriented Programming (ROP) attacks much more difficult to execute reliably."
+            },
+            "stack_canary": {
+                "has_canary": true,
+                "severity": "info",
+                "description": "This binary has a stack canary value added to the stack so that it will be overwritten by a stack buffer that overflows the return address. This allows detection of overflows by verifying the integrity of the canary before function return."
+            },
+            "relocation_readonly": {
+                "relro": "Full RELRO",
+                "severity": "info",
+                "description": "This shared object has full RELRO enabled. RELRO ensures that the GOT cannot be overwritten in vulnerable ELF binaries. In Full RELRO, the entire GOT (.got and .got.plt both) is marked as read-only."
+            },
+            "rpath": {
+                "rpath": null,
+                "severity": "info",
+                "description": "The binary does not have run-time search path or RPATH set."
+            },
+            "runpath": {
+                "runpath": null,
+                "severity": "info",
+                "description": "The binary does not have RUNPATH set."
+            },
+            "fortify": {
+                "is_fortified": false,
+                "severity": "warning",
+                "description": "The binary does not have any fortified functions. Fortified functions provides buffer overflow checks against glibc's commons insecure functions like strcpy, gets etc. Use the compiler option -D_FORTIFY_SOURCE=2 to fortify functions. This check is not applicable for Dart/Flutter libraries."
+            },
+            "symbol": {
+                "is_stripped": true,
+                "severity": "info",
+                "description": "Symbols are stripped."
+            }
+        },
+        {
+            "name": "apktool_out/lib/armeabi-v7a/libset.so",
+            "nx": {
+                "is_nx": true,
+                "severity": "info",
+                "description": "The binary has NX bit set. This marks a memory page non-executable making attacker injected shellcode non-executable."
+            },
+            "pie": {
+                "is_pie": "Dynamic Shared Object (DSO)",
+                "severity": "info",
+                "description": "The shared object is build with -fPIC flag which enables Position independent code. This makes Return Oriented Programming (ROP) attacks much more difficult to execute reliably."
+            },
+            "stack_canary": {
+                "has_canary": true,
+                "severity": "info",
+                "description": "This binary has a stack canary value added to the stack so that it will be overwritten by a stack buffer that overflows the return address. This allows detection of overflows by verifying the integrity of the canary before function return."
+            },
+            "relocation_readonly": {
+                "relro": "Full RELRO",
+                "severity": "info",
+                "description": "This shared object has full RELRO enabled. RELRO ensures that the GOT cannot be overwritten in vulnerable ELF binaries. In Full RELRO, the entire GOT (.got and .got.plt both) is marked as read-only."
+            },
+            "rpath": {
+                "rpath": null,
+                "severity": "info",
+                "description": "The binary does not have run-time search path or RPATH set."
+            },
+            "runpath": {
+                "runpath": null,
+                "severity": "info",
+                "description": "The binary does not have RUNPATH set."
+            },
+            "fortify": {
+                "is_fortified": false,
+                "severity": "warning",
+                "description": "The binary does not have any fortified functions. Fortified functions provides buffer overflow checks against glibc's commons insecure functions like strcpy, gets etc. Use the compiler option -D_FORTIFY_SOURCE=2 to fortify functions. This check is not applicable for Dart/Flutter libraries."
+            },
+            "symbol": {
+                "is_stripped": true,
+                "severity": "info",
+                "description": "Symbols are stripped."
+            }
+        }
+    ],
+    "file_analysis": [],
+    "android_api": {
+        "api_native_code": {
+            "files": {
+                "com/lzsEsq/dykSgp/jhvqZx/ymcBssEDD.java": "9"
+            },
+            "metadata": {
+                "description": "Loading Native Code (Shared Library)",
+                "severity": "info"
+            }
+        },
+        "api_java_reflection": {
+            "files": {
+                "com/lzsEsq/dykSgp/jhvqZx/pupsPVlBod.java": "279,284,291,303,16,17"
+            },
+            "metadata": {
+                "description": "Java Reflection",
+                "severity": "info"
+            }
+        },
+        "api_local_file_io": {
+            "files": {
+                "com/lzsEsq/dykSgp/jhvqZx/pupsPVlBod.java": "9,10,10,11,11,12,12,13,13,14,164,166,167,394"
+            },
+            "metadata": {
+                "description": "Local File I/O Operations",
+                "severity": "info"
+            }
+        }
+    },
+    "code_analysis": {
+        "findings": {},
+        "summary": {}
+    },
+    "niap_analysis": {},
+    "permission_mapping": {
+        "android.permission.WRITE_EXTERNAL_STORAGE": {
+            "com/lzsEsq/dykSgp/jhvqZx/pupsPVlBod.java": "402,440,11"
+        }
+    },
+    "urls": [
+        {
+            "urls": [
+                "https://www.openssl.org/docs/faq.html"
+            ],
+            "path": "lib/armeabi-v7a/libset.so"
+        },
+        {
+            "urls": [
+                "https://www.openssl.org/docs/faq.html"
+            ],
+            "path": "apktool_out/lib/armeabi-v7a/libset.so"
+        }
+    ],
+    "domains": {
+        "www.openssl.org": {
+            "bad": "no",
+            "geolocation": {
+                "ip": "34.49.79.89",
+                "country_short": "US",
+                "country_long": "United States of America",
+                "region": "Texas",
+                "city": "Houston",
+                "latitude": "29.941401",
+                "longitude": "-95.344498"
+            },
+            "ofac": false
+        }
+    },
+    "emails": [],
+    "strings": {
+        "strings_apk_res":  [],
+        "strings_so": [],
+        "strings_code": ["dbcdcfghijklmaop"]
+    },
+    "firebase_urls": [],
+    "files": [
+        "AndroidManifest.xml",
+        "assets/pgsHZz.apk",
+        "classes.dex",
+        "error_prone/Annotations.gwt.xml",
+        "jsr305_annotations/Jsr305_annotations.gwt.xml",
+        "kill-classes.dex",
+        "lib/armeabi-v7a/libset.so",
+        "META-INF/android.arch.core_runtime.version",
+        "META-INF/android.arch.lifecycle_livedata-core.version",
+        "META-INF/android.arch.lifecycle_livedata.version",
+        "META-INF/android.arch.lifecycle_runtime.version",
+        "META-INF/android.arch.lifecycle_viewmodel.version",
+        "META-INF/androidx.appcompat_appcompat.version",
+        "META-INF/androidx.coordinatorlayout_coordinatorlayout.version",
+        "META-INF/androidx.core_core.version",
+        "META-INF/androidx.customview_customview.version",
+        "META-INF/androidx.documentfile_documentfile.version",
+        "META-INF/androidx.fragment_fragment.version",
+        "META-INF/androidx.interpolator_interpolator.version",
+        "META-INF/androidx.legacy_legacy-support-core-ui.version",
+        "META-INF/androidx.print_print.version",
+        "META-INF/androidx.slidingpanelayout_slidingpanelayout.version",
+        "META-INF/androidx.vectordrawable_vectordrawable-animated.version",
+        "META-INF/androidx.vectordrawable_vectordrawable.version",
+        "META-INF/androidx.versionedparcelable_versionedparcelable.version",
+        "res/anim/abc_fade_in.xml",
+        "res/anim/abc_fade_out.xml",
+        "res/anim/abc_grow_fade_in_from_bottom.xml",
+        "res/anim/abc_popup_enter.xml",
+        "res/anim/abc_popup_exit.xml",
+        "res/anim/abc_shrink_fade_out_from_bottom.xml",
+        "res/anim/abc_slide_in_bottom.xml",
+        "res/anim/abc_slide_in_top.xml",
+        "res/anim/abc_slide_out_bottom.xml",
+        "res/anim/abc_slide_out_top.xml",
+        "res/anim/abc_tooltip_enter.xml",
+        "res/anim/abc_tooltip_exit.xml",
+        "res/color/abc_background_cache_hint_selector_material_dark.xml",
+        "res/color/abc_background_cache_hint_selector_material_light.xml",
+        "res/color/abc_hint_foreground_material_dark.xml",
+        "res/color/abc_hint_foreground_material_light.xml",
+        "res/color/abc_primary_text_disable_only_material_dark.xml",
+        "res/color/abc_primary_text_disable_only_material_light.xml",
+        "res/color/abc_primary_text_material_dark.xml",
+        "res/color/abc_primary_text_material_light.xml",
+        "res/color/abc_search_url_text.xml",
+        "res/color/abc_secondary_text_material_dark.xml",
+        "res/color/abc_secondary_text_material_light.xml",
+        "res/color/switch_thumb_material_dark.xml",
+        "res/color/switch_thumb_material_light.xml",
+        "res/color-v23/abc_btn_colored_borderless_text_material.xml",
+        "res/color-v23/abc_btn_colored_text_material.xml",
+        "res/color-v23/abc_color_highlight_material.xml",
+        "res/color-v23/abc_tint_btn_checkable.xml",
+        "res/color-v23/abc_tint_default.xml",
+        "res/color-v23/abc_tint_edittext.xml",
+        "res/color-v23/abc_tint_seek_thumb.xml",
+        "res/color-v23/abc_tint_spinner.xml",
+        "res/color-v23/abc_tint_switch_track.xml",
+        "res/drawable/abc_btn_borderless_material.xml",
+        "res/drawable/abc_btn_check_material.xml",
+        "res/drawable/abc_btn_default_mtrl_shape.xml",
+        "res/drawable/abc_btn_radio_material.xml",
+        "res/drawable/abc_cab_background_internal_bg.xml",
+        "res/drawable/abc_cab_background_top_material.xml",
+        "res/drawable/abc_ic_ab_back_material.xml",
+        "res/drawable/abc_ic_arrow_drop_right_black_24dp.xml",
+        "res/drawable/abc_ic_clear_material.xml",
+        "res/drawable/abc_ic_go_search_api_material.xml",
+        "res/drawable/abc_ic_menu_overflow_material.xml",
+        "res/drawable/abc_ic_search_api_material.xml",
+        "res/drawable/abc_ic_voice_search_api_material.xml",
+        "res/drawable/abc_item_background_holo_dark.xml",
+        "res/drawable/abc_item_background_holo_light.xml",
+        "res/drawable/abc_list_selector_background_transition_holo_dark.xml",
+        "res/drawable/abc_list_selector_background_transition_holo_light.xml",
+        "res/drawable/abc_list_selector_holo_dark.xml",
+        "res/drawable/abc_list_selector_holo_light.xml",
+        "res/drawable/abc_ratingbar_indicator_material.xml",
+        "res/drawable/abc_ratingbar_material.xml",
+        "res/drawable/abc_ratingbar_small_material.xml",
+        "res/drawable/abc_seekbar_thumb_material.xml",
+        "res/drawable/abc_seekbar_tick_mark_material.xml",
+        "res/drawable/abc_seekbar_track_material.xml",
+        "res/drawable/abc_spinner_textfield_background_material.xml",
+        "res/drawable/abc_switch_thumb_material.xml",
+        "res/drawable/abc_tab_indicator_material.xml",
+        "res/drawable/abc_textfield_search_material.xml",
+        "res/drawable/abc_text_cursor_material.xml",
+        "res/drawable/abc_vector_test.xml",
+        "res/drawable/bg_circle.xml",
+        "res/drawable/detectspy_start_light.png",
+        "res/drawable/detectspy_title.png",
+        "res/drawable/ic_launcher.png",
+        "res/drawable/intro_main.png",
+        "res/drawable/intro_main_1.png",
+        "res/drawable/intro_main_init.png",
+        "res/drawable/notification_bg.xml",
+        "res/drawable/notification_bg_low.xml",
+        "res/drawable/notification_icon_background.xml",
+        "res/drawable/notification_tile_bg.xml",
+        "res/drawable/noti_empty_icon.xml",
+        "res/drawable/resultspy_start_dark.png",
+        "res/drawable/scanspy_title.png",
+        "res/drawable/tooltip_frame_dark.xml",
+        "res/drawable/tooltip_frame_light.xml",
+        "res/drawable-hdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_btn_check_to_on_mtrl_000.png",
+        "res/drawable-hdpi-v4/abc_btn_check_to_on_mtrl_015.png",
+        "res/drawable-hdpi-v4/abc_btn_radio_to_on_mtrl_000.png",
+        "res/drawable-hdpi-v4/abc_btn_radio_to_on_mtrl_015.png",
+        "res/drawable-hdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "res/drawable-hdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png",
+        "res/drawable-hdpi-v4/abc_cab_background_top_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_ic_commit_search_api_mtrl_alpha.png",
+        "res/drawable-hdpi-v4/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-hdpi-v4/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-hdpi-v4/abc_ic_menu_paste_mtrl_am_alpha.png",
+        "res/drawable-hdpi-v4/abc_ic_menu_selectall_mtrl_alpha.png",
+        "res/drawable-hdpi-v4/abc_ic_menu_share_mtrl_alpha.png",
+        "res/drawable-hdpi-v4/abc_ic_star_black_16dp.png",
+        "res/drawable-hdpi-v4/abc_ic_star_black_36dp.png",
+        "res/drawable-hdpi-v4/abc_ic_star_black_48dp.png",
+        "res/drawable-hdpi-v4/abc_ic_star_half_black_16dp.png",
+        "res/drawable-hdpi-v4/abc_ic_star_half_black_36dp.png",
+        "res/drawable-hdpi-v4/abc_ic_star_half_black_48dp.png",
+        "res/drawable-hdpi-v4/abc_list_divider_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_list_focused_holo.9.png",
+        "res/drawable-hdpi-v4/abc_list_longpressed_holo.9.png",
+        "res/drawable-hdpi-v4/abc_list_pressed_holo_dark.9.png",
+        "res/drawable-hdpi-v4/abc_list_pressed_holo_light.9.png",
+        "res/drawable-hdpi-v4/abc_list_selector_disabled_holo_dark.9.png",
+        "res/drawable-hdpi-v4/abc_list_selector_disabled_holo_light.9.png",
+        "res/drawable-hdpi-v4/abc_menu_hardkey_panel_mtrl_mult.9.png",
+        "res/drawable-hdpi-v4/abc_popup_background_mtrl_mult.9.png",
+        "res/drawable-hdpi-v4/abc_scrubber_control_off_mtrl_alpha.png",
+        "res/drawable-hdpi-v4/abc_scrubber_control_to_pressed_mtrl_000.png",
+        "res/drawable-hdpi-v4/abc_scrubber_control_to_pressed_mtrl_005.png",
+        "res/drawable-hdpi-v4/abc_scrubber_primary_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_scrubber_track_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_switch_track_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_tab_indicator_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_textfield_activated_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_textfield_default_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_textfield_search_activated_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_textfield_search_default_mtrl_alpha.9.png",
+        "res/drawable-hdpi-v4/abc_text_select_handle_left_mtrl_dark.png",
+        "res/drawable-hdpi-v4/abc_text_select_handle_left_mtrl_light.png",
+        "res/drawable-hdpi-v4/abc_text_select_handle_middle_mtrl_dark.png",
+        "res/drawable-hdpi-v4/abc_text_select_handle_middle_mtrl_light.png",
+        "res/drawable-hdpi-v4/abc_text_select_handle_right_mtrl_dark.png",
+        "res/drawable-hdpi-v4/abc_text_select_handle_right_mtrl_light.png",
+        "res/drawable-hdpi-v4/notification_bg_low_normal.9.png",
+        "res/drawable-hdpi-v4/notification_bg_low_pressed.9.png",
+        "res/drawable-hdpi-v4/notification_bg_normal.9.png",
+        "res/drawable-hdpi-v4/notification_bg_normal_pressed.9.png",
+        "res/drawable-hdpi-v4/notify_panel_notification_icon_bg.png",
+        "res/drawable-ldrtl-hdpi-v17/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-ldrtl-hdpi-v17/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-ldrtl-hdpi-v17/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-ldrtl-mdpi-v17/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-ldrtl-mdpi-v17/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-ldrtl-mdpi-v17/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-ldrtl-xhdpi-v17/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-ldrtl-xhdpi-v17/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-ldrtl-xhdpi-v17/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-ldrtl-xxhdpi-v17/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-ldrtl-xxhdpi-v17/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-ldrtl-xxhdpi-v17/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-ldrtl-xxxhdpi-v17/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-ldrtl-xxxhdpi-v17/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-ldrtl-xxxhdpi-v17/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_btn_check_to_on_mtrl_000.png",
+        "res/drawable-mdpi-v4/abc_btn_check_to_on_mtrl_015.png",
+        "res/drawable-mdpi-v4/abc_btn_radio_to_on_mtrl_000.png",
+        "res/drawable-mdpi-v4/abc_btn_radio_to_on_mtrl_015.png",
+        "res/drawable-mdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "res/drawable-mdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png",
+        "res/drawable-mdpi-v4/abc_cab_background_top_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_ic_commit_search_api_mtrl_alpha.png",
+        "res/drawable-mdpi-v4/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-mdpi-v4/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-mdpi-v4/abc_ic_menu_paste_mtrl_am_alpha.png",
+        "res/drawable-mdpi-v4/abc_ic_menu_selectall_mtrl_alpha.png",
+        "res/drawable-mdpi-v4/abc_ic_menu_share_mtrl_alpha.png",
+        "res/drawable-mdpi-v4/abc_ic_star_black_16dp.png",
+        "res/drawable-mdpi-v4/abc_ic_star_black_36dp.png",
+        "res/drawable-mdpi-v4/abc_ic_star_black_48dp.png",
+        "res/drawable-mdpi-v4/abc_ic_star_half_black_16dp.png",
+        "res/drawable-mdpi-v4/abc_ic_star_half_black_36dp.png",
+        "res/drawable-mdpi-v4/abc_ic_star_half_black_48dp.png",
+        "res/drawable-mdpi-v4/abc_list_divider_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_list_focused_holo.9.png",
+        "res/drawable-mdpi-v4/abc_list_longpressed_holo.9.png",
+        "res/drawable-mdpi-v4/abc_list_pressed_holo_dark.9.png",
+        "res/drawable-mdpi-v4/abc_list_pressed_holo_light.9.png",
+        "res/drawable-mdpi-v4/abc_list_selector_disabled_holo_dark.9.png",
+        "res/drawable-mdpi-v4/abc_list_selector_disabled_holo_light.9.png",
+        "res/drawable-mdpi-v4/abc_menu_hardkey_panel_mtrl_mult.9.png",
+        "res/drawable-mdpi-v4/abc_popup_background_mtrl_mult.9.png",
+        "res/drawable-mdpi-v4/abc_scrubber_control_off_mtrl_alpha.png",
+        "res/drawable-mdpi-v4/abc_scrubber_control_to_pressed_mtrl_000.png",
+        "res/drawable-mdpi-v4/abc_scrubber_control_to_pressed_mtrl_005.png",
+        "res/drawable-mdpi-v4/abc_scrubber_primary_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_scrubber_track_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_switch_track_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_tab_indicator_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_textfield_activated_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_textfield_default_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_textfield_search_activated_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_textfield_search_default_mtrl_alpha.9.png",
+        "res/drawable-mdpi-v4/abc_text_select_handle_left_mtrl_dark.png",
+        "res/drawable-mdpi-v4/abc_text_select_handle_left_mtrl_light.png",
+        "res/drawable-mdpi-v4/abc_text_select_handle_middle_mtrl_dark.png",
+        "res/drawable-mdpi-v4/abc_text_select_handle_middle_mtrl_light.png",
+        "res/drawable-mdpi-v4/abc_text_select_handle_right_mtrl_dark.png",
+        "res/drawable-mdpi-v4/abc_text_select_handle_right_mtrl_light.png",
+        "res/drawable-mdpi-v4/notification_bg_low_normal.9.png",
+        "res/drawable-mdpi-v4/notification_bg_low_pressed.9.png",
+        "res/drawable-mdpi-v4/notification_bg_normal.9.png",
+        "res/drawable-mdpi-v4/notification_bg_normal_pressed.9.png",
+        "res/drawable-mdpi-v4/notify_panel_notification_icon_bg.png",
+        "res/drawable-v21/abc_action_bar_item_background_material.xml",
+        "res/drawable-v21/abc_btn_colored_material.xml",
+        "res/drawable-v21/abc_dialog_material_background.xml",
+        "res/drawable-v21/abc_edit_text_material.xml",
+        "res/drawable-v21/abc_list_divider_material.xml",
+        "res/drawable-v21/notification_action_background.xml",
+        "res/drawable-v23/abc_control_background_material.xml",
+        "res/drawable-watch-v20/abc_dialog_material_background.xml",
+        "res/drawable-xhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_btn_check_to_on_mtrl_000.png",
+        "res/drawable-xhdpi-v4/abc_btn_check_to_on_mtrl_015.png",
+        "res/drawable-xhdpi-v4/abc_btn_radio_to_on_mtrl_000.png",
+        "res/drawable-xhdpi-v4/abc_btn_radio_to_on_mtrl_015.png",
+        "res/drawable-xhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "res/drawable-xhdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png",
+        "res/drawable-xhdpi-v4/abc_cab_background_top_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_ic_commit_search_api_mtrl_alpha.png",
+        "res/drawable-xhdpi-v4/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-xhdpi-v4/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-xhdpi-v4/abc_ic_menu_paste_mtrl_am_alpha.png",
+        "res/drawable-xhdpi-v4/abc_ic_menu_selectall_mtrl_alpha.png",
+        "res/drawable-xhdpi-v4/abc_ic_menu_share_mtrl_alpha.png",
+        "res/drawable-xhdpi-v4/abc_ic_star_black_16dp.png",
+        "res/drawable-xhdpi-v4/abc_ic_star_black_36dp.png",
+        "res/drawable-xhdpi-v4/abc_ic_star_black_48dp.png",
+        "res/drawable-xhdpi-v4/abc_ic_star_half_black_16dp.png",
+        "res/drawable-xhdpi-v4/abc_ic_star_half_black_36dp.png",
+        "res/drawable-xhdpi-v4/abc_ic_star_half_black_48dp.png",
+        "res/drawable-xhdpi-v4/abc_list_divider_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_list_focused_holo.9.png",
+        "res/drawable-xhdpi-v4/abc_list_longpressed_holo.9.png",
+        "res/drawable-xhdpi-v4/abc_list_pressed_holo_dark.9.png",
+        "res/drawable-xhdpi-v4/abc_list_pressed_holo_light.9.png",
+        "res/drawable-xhdpi-v4/abc_list_selector_disabled_holo_dark.9.png",
+        "res/drawable-xhdpi-v4/abc_list_selector_disabled_holo_light.9.png",
+        "res/drawable-xhdpi-v4/abc_menu_hardkey_panel_mtrl_mult.9.png",
+        "res/drawable-xhdpi-v4/abc_popup_background_mtrl_mult.9.png",
+        "res/drawable-xhdpi-v4/abc_scrubber_control_off_mtrl_alpha.png",
+        "res/drawable-xhdpi-v4/abc_scrubber_control_to_pressed_mtrl_000.png",
+        "res/drawable-xhdpi-v4/abc_scrubber_control_to_pressed_mtrl_005.png",
+        "res/drawable-xhdpi-v4/abc_scrubber_primary_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_scrubber_track_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_switch_track_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_textfield_activated_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_textfield_default_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_textfield_search_activated_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_textfield_search_default_mtrl_alpha.9.png",
+        "res/drawable-xhdpi-v4/abc_text_select_handle_left_mtrl_dark.png",
+        "res/drawable-xhdpi-v4/abc_text_select_handle_left_mtrl_light.png",
+        "res/drawable-xhdpi-v4/abc_text_select_handle_middle_mtrl_dark.png",
+        "res/drawable-xhdpi-v4/abc_text_select_handle_middle_mtrl_light.png",
+        "res/drawable-xhdpi-v4/abc_text_select_handle_right_mtrl_dark.png",
+        "res/drawable-xhdpi-v4/abc_text_select_handle_right_mtrl_light.png",
+        "res/drawable-xhdpi-v4/notification_bg_low_normal.9.png",
+        "res/drawable-xhdpi-v4/notification_bg_low_pressed.9.png",
+        "res/drawable-xhdpi-v4/notification_bg_normal.9.png",
+        "res/drawable-xhdpi-v4/notification_bg_normal_pressed.9.png",
+        "res/drawable-xhdpi-v4/notify_panel_notification_icon_bg.png",
+        "res/drawable-xxhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_btn_check_to_on_mtrl_000.png",
+        "res/drawable-xxhdpi-v4/abc_btn_check_to_on_mtrl_015.png",
+        "res/drawable-xxhdpi-v4/abc_btn_radio_to_on_mtrl_000.png",
+        "res/drawable-xxhdpi-v4/abc_btn_radio_to_on_mtrl_015.png",
+        "res/drawable-xxhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "res/drawable-xxhdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png",
+        "res/drawable-xxhdpi-v4/abc_cab_background_top_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_ic_commit_search_api_mtrl_alpha.png",
+        "res/drawable-xxhdpi-v4/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-xxhdpi-v4/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-xxhdpi-v4/abc_ic_menu_paste_mtrl_am_alpha.png",
+        "res/drawable-xxhdpi-v4/abc_ic_menu_selectall_mtrl_alpha.png",
+        "res/drawable-xxhdpi-v4/abc_ic_menu_share_mtrl_alpha.png",
+        "res/drawable-xxhdpi-v4/abc_ic_star_black_16dp.png",
+        "res/drawable-xxhdpi-v4/abc_ic_star_black_36dp.png",
+        "res/drawable-xxhdpi-v4/abc_ic_star_black_48dp.png",
+        "res/drawable-xxhdpi-v4/abc_ic_star_half_black_16dp.png",
+        "res/drawable-xxhdpi-v4/abc_ic_star_half_black_36dp.png",
+        "res/drawable-xxhdpi-v4/abc_ic_star_half_black_48dp.png",
+        "res/drawable-xxhdpi-v4/abc_list_divider_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_list_focused_holo.9.png",
+        "res/drawable-xxhdpi-v4/abc_list_longpressed_holo.9.png",
+        "res/drawable-xxhdpi-v4/abc_list_pressed_holo_dark.9.png",
+        "res/drawable-xxhdpi-v4/abc_list_pressed_holo_light.9.png",
+        "res/drawable-xxhdpi-v4/abc_list_selector_disabled_holo_dark.9.png",
+        "res/drawable-xxhdpi-v4/abc_list_selector_disabled_holo_light.9.png",
+        "res/drawable-xxhdpi-v4/abc_menu_hardkey_panel_mtrl_mult.9.png",
+        "res/drawable-xxhdpi-v4/abc_popup_background_mtrl_mult.9.png",
+        "res/drawable-xxhdpi-v4/abc_scrubber_control_off_mtrl_alpha.png",
+        "res/drawable-xxhdpi-v4/abc_scrubber_control_to_pressed_mtrl_000.png",
+        "res/drawable-xxhdpi-v4/abc_scrubber_control_to_pressed_mtrl_005.png",
+        "res/drawable-xxhdpi-v4/abc_scrubber_primary_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_scrubber_track_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_switch_track_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_textfield_activated_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_textfield_default_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_textfield_search_activated_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_textfield_search_default_mtrl_alpha.9.png",
+        "res/drawable-xxhdpi-v4/abc_text_select_handle_left_mtrl_dark.png",
+        "res/drawable-xxhdpi-v4/abc_text_select_handle_left_mtrl_light.png",
+        "res/drawable-xxhdpi-v4/abc_text_select_handle_middle_mtrl_dark.png",
+        "res/drawable-xxhdpi-v4/abc_text_select_handle_middle_mtrl_light.png",
+        "res/drawable-xxhdpi-v4/abc_text_select_handle_right_mtrl_dark.png",
+        "res/drawable-xxhdpi-v4/abc_text_select_handle_right_mtrl_light.png",
+        "res/drawable-xxxhdpi-v4/abc_btn_check_to_on_mtrl_000.png",
+        "res/drawable-xxxhdpi-v4/abc_btn_check_to_on_mtrl_015.png",
+        "res/drawable-xxxhdpi-v4/abc_btn_radio_to_on_mtrl_000.png",
+        "res/drawable-xxxhdpi-v4/abc_btn_radio_to_on_mtrl_015.png",
+        "res/drawable-xxxhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "res/drawable-xxxhdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_menu_cut_mtrl_alpha.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_menu_paste_mtrl_am_alpha.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_menu_selectall_mtrl_alpha.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_menu_share_mtrl_alpha.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_star_black_16dp.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_star_black_36dp.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_star_black_48dp.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_star_half_black_16dp.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_star_half_black_36dp.png",
+        "res/drawable-xxxhdpi-v4/abc_ic_star_half_black_48dp.png",
+        "res/drawable-xxxhdpi-v4/abc_scrubber_control_to_pressed_mtrl_000.png",
+        "res/drawable-xxxhdpi-v4/abc_scrubber_control_to_pressed_mtrl_005.png",
+        "res/drawable-xxxhdpi-v4/abc_spinner_mtrl_am_alpha.9.png",
+        "res/drawable-xxxhdpi-v4/abc_switch_track_mtrl_alpha.9.png",
+        "res/drawable-xxxhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png",
+        "res/drawable-xxxhdpi-v4/abc_text_select_handle_left_mtrl_dark.png",
+        "res/drawable-xxxhdpi-v4/abc_text_select_handle_left_mtrl_light.png",
+        "res/drawable-xxxhdpi-v4/abc_text_select_handle_right_mtrl_dark.png",
+        "res/drawable-xxxhdpi-v4/abc_text_select_handle_right_mtrl_light.png",
+        "res/layout/abc_action_bar_title_item.xml",
+        "res/layout/abc_action_bar_up_container.xml",
+        "res/layout/abc_action_menu_item_layout.xml",
+        "res/layout/abc_action_menu_layout.xml",
+        "res/layout/abc_action_mode_bar.xml",
+        "res/layout/abc_action_mode_close_item_material.xml",
+        "res/layout/abc_activity_chooser_view.xml",
+        "res/layout/abc_activity_chooser_view_list_item.xml",
+        "res/layout/abc_alert_dialog_button_bar_material.xml",
+        "res/layout/abc_alert_dialog_material.xml",
+        "res/layout/abc_alert_dialog_title_material.xml",
+        "res/layout/abc_cascading_menu_item_layout.xml",
+        "res/layout/abc_dialog_title_material.xml",
+        "res/layout/abc_expanded_menu_layout.xml",
+        "res/layout/abc_list_menu_item_checkbox.xml",
+        "res/layout/abc_list_menu_item_icon.xml",
+        "res/layout/abc_list_menu_item_layout.xml",
+        "res/layout/abc_list_menu_item_radio.xml",
+        "res/layout/abc_popup_menu_header_item_layout.xml",
+        "res/layout/abc_popup_menu_item_layout.xml",
+        "res/layout/abc_screen_content_include.xml",
+        "res/layout/abc_screen_simple.xml",
+        "res/layout/abc_screen_simple_overlay_action_mode.xml",
+        "res/layout/abc_screen_toolbar.xml",
+        "res/layout/abc_search_dropdown_item_icons_2line.xml",
+        "res/layout/abc_search_view.xml",
+        "res/layout/abc_select_dialog_material.xml",
+        "res/layout/abc_tooltip.xml",
+        "res/layout/activity_alert_dialog.xml",
+        "res/layout/activity_auth.xml",
+        "res/layout/activity_intro.xml",
+        "res/layout/activity_main.xml",
+        "res/layout/activity_quick_sort.xml",
+        "res/layout/activity_result.xml",
+        "res/layout/activity_result_other.xml",
+        "res/layout/activity_scanspy.xml",
+        "res/layout/activity_time_complexity.xml",
+        "res/layout/activity_web_main.xml",
+        "res/layout/common_dialog_content.xml",
+        "res/layout/content_header.xml",
+        "res/layout/exo_player_control_view.xml",
+        "res/layout/loading.xml",
+        "res/layout/nav_header_main.xml",
+        "res/layout/notification_media_action.xml",
+        "res/layout/notification_media_cancel_action.xml",
+        "res/layout/notification_template_big_media.xml",
+        "res/layout/notification_template_big_media_custom.xml",
+        "res/layout/notification_template_big_media_narrow.xml",
+        "res/layout/notification_template_big_media_narrow_custom.xml",
+        "res/layout/notification_template_lines_media.xml",
+        "res/layout/notification_template_media.xml",
+        "res/layout/notification_template_media_custom.xml",
+        "res/layout/notification_template_part_chronometer.xml",
+        "res/layout/notification_template_part_time.xml",
+        "res/layout/noti_layout.xml",
+        "res/layout/select_dialog_item_material.xml",
+        "res/layout/select_dialog_multichoice_material.xml",
+        "res/layout/select_dialog_singlechoice_material.xml",
+        "res/layout/support_simple_spinner_dropdown_item.xml",
+        "res/layout-v21/notification_action.xml",
+        "res/layout-v21/notification_action_tombstone.xml",
+        "res/layout-v21/notification_template_custom_big.xml",
+        "res/layout-v21/notification_template_icon_group.xml",
+        "res/layout-v26/abc_screen_toolbar.xml",
+        "res/layout-watch-v20/abc_alert_dialog_button_bar_material.xml",
+        "res/layout-watch-v20/abc_alert_dialog_title_material.xml",
+        "res/menu/activity_main_drawer.xml",
+        "res/menu/main.xml",
+        "res/xml/accessibilityservice.xml",
+        "res/xml/file_paths.xml",
+        "resources.arsc",
+        "third_party/java_src/error_prone/project/annotations/Annotations.gwt.xml",
+        "third_party/java_src/error_prone/project/annotations/Google_internal.gwt.xml",
+        "META-INF/2023JC.SF",
+        "META-INF/2023JC.RSA",
+        "META-INF/MANIFEST.MF"
+    ],
+    "exported_count": {
+        "exported_activities": 2,
+        "exported_services": 2,
+        "exported_receivers": 2,
+        "exported_providers": 0
+    },
+    "apkid": {
+        "assets/pgsHZz.apk!classes.dex": {
+            "compiler": [
+                "dx"
+            ]
+        },
+        "classes.dex": {
+            "compiler": [
+                "dx"
+            ]
+        }
+    },
+    "behaviour": {
+        "00022": {
+            "files": {
+                "com/lzsEsq/dykSgp/jhvqZx/pupsPVlBod.java": "200,10,11"
+            },
+            "metadata": {
+                "label": [
+                    "file"
+                ],
+                "description": "Open a file from given absolute path of the file",
+                "severity": "info"
+            }
+        },
+        "00121": {
+            "files": {
+                "com/lzsEsq/dykSgp/jhvqZx/pupsPVlBod.java": "363,366,396,6,10,11"
+            },
+            "metadata": {
+                "label": [
+                    "file",
+                    "command"
+                ],
+                "description": "Create a directory",
+                "severity": "info"
+            }
+        },
+        "00125": {
+            "files": {
+                "com/lzsEsq/dykSgp/jhvqZx/pupsPVlBod.java": "169,395,363,366,6,10,11"
+            },
+            "metadata": {
+                "label": [
+                    "file"
+                ],
+                "description": "Check if the given file path exist",
+                "severity": "info"
+            }
+        },
+        "00104": {
+            "files": {
+                "com/lzsEsq/dykSgp/jhvqZx/pupsPVlBod.java": "363,366,375,393,6,10,11"
+            },
+            "metadata": {
+                "label": [
+                    "file"
+                ],
+                "description": "Check if the given path is directory",
+                "severity": "info"
+            }
+        }
+    },
+    "trackers": {
+        "detected_trackers": 0,
+        "total_trackers": 432,
+        "trackers": []
+    },
+    "playstore_details": {
+        "error": true
+    },
+    "secrets": [],
+    "logs": [
+        {
+            "timestamp": "2025-12-27 03:53:43",
+            "status": "Generating Hashes",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:43",
+            "status": "Extracting APK",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:43",
+            "status": "Unzipping",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:43",
+            "status": "Parsing APK with androguard",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:43",
+            "status": "Extracting APK features using aapt/aapt2",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:43",
+            "status": "Getting Hardcoded Certificates/Keystores",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:45",
+            "status": "Parsing AndroidManifest.xml",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:45",
+            "status": "Extracting Manifest Data",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:45",
+            "status": "Manifest Analysis Started",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:45",
+            "status": "Performing Static Analysis on: My Scan APP (com.ldjSxw.heBbQd)",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:46",
+            "status": "Fetching Details from Play Store: com.ldjSxw.heBbQd",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:46",
+            "status": "Checking for Malware Permissions",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:46",
+            "status": "Fetching icon path",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:46",
+            "status": "Library Binary Analysis Started",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:46",
+            "status": "Analyzing lib/armeabi-v7a/libset.so",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:46",
+            "status": "Analyzing apktool_out/lib/armeabi-v7a/libset.so",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:47",
+            "status": "Reading Code Signing Certificate",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:47",
+            "status": "Running APKiD 3.0.0",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:51",
+            "status": "Detecting Trackers",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:51",
+            "status": "Decompiling APK to Java with JADX",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:53",
+            "status": "Converting DEX to Smali",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:53",
+            "status": "Code Analysis Started on - java_source",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:53",
+            "status": "Android SBOM Analysis Completed",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:53",
+            "status": "Android SAST Completed",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:53",
+            "status": "Android API Analysis Started",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:54",
+            "status": "Android API Analysis Completed",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:54",
+            "status": "Android Permission Mapping Started",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:54",
+            "status": "Android Permission Mapping Completed",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:54",
+            "status": "Android Behaviour Analysis Started",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:54",
+            "status": "Android Behaviour Analysis Completed",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:54",
+            "status": "Extracting Emails and URLs from Source Code",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:54",
+            "status": "Email and URL Extraction Completed",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:54",
+            "status": "Extracting String data from APK",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:54",
+            "status": "Extracting String data from SO",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:55",
+            "status": "Extracting String data from Code",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:55",
+            "status": "Extracting String values and entropies from Code",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:55",
+            "status": "Performing Malware check on extracted domains",
+            "exception": null
+        },
+        {
+            "timestamp": "2025-12-27 03:53:56",
+            "status": "Saving to Database",
+            "exception": null
+        }
+    ],
+    "sbom": {
+        "sbom_versioned": [
+            "android.arch.core:runtime@1.1.1",
+            "android.arch.lifecycle:livedata-core@1.1.1",
+            "android.arch.lifecycle:livedata@1.1.1",
+            "android.arch.lifecycle:runtime@1.1.1",
+            "android.arch.lifecycle:viewmodel@1.1.1",
+            "androidx.appcompat:appcompat@1.0.0",
+            "androidx.coordinatorlayout:coordinatorlayout@1.0.0",
+            "androidx.core:core@1.0.0",
+            "androidx.customview:customview@1.0.0",
+            "androidx.documentfile:documentfile@1.0.0",
+            "androidx.fragment:fragment@1.0.0",
+            "androidx.interpolator:interpolator@1.0.0",
+            "androidx.legacy:legacy-support-core-ui@1.0.0",
+            "androidx.print:print@1.0.0",
+            "androidx.slidingpanelayout:slidingpanelayout@1.0.0",
+            "androidx.vectordrawable:vectordrawable-animated@1.0.0",
+            "androidx.vectordrawable:vectordrawable@1.0.0",
+            "androidx.versionedparcelable:versionedparcelable@1.0.0"
+        ],
+        "sbom_packages": [
+            "com.ldjSxw.heBbQd",
+            "com.lzsEsq.dykSgp.jhvqZx"
+        ]
+    },
+    "average_cvss": null,
+    "appsec": {
+        "high": [
+            {
+                "title": "App can be installed on a vulnerable unpatched Android version",
+                "description": "Android 6.0-6.0.1, [minSdk=23]\nThis application can be installed on an older version of android that has multiple unfixed vulnerabilities. These devices won't receive reasonable security updates from Google. Support an Android version => 10, API 29 to receive reasonable security updates.",
+                "section": "manifest"
+            },
+            {
+                "title": "Clear text traffic is Enabled For App",
+                "description": "[android:usesCleartextTraffic=true]\nThe app intends to use cleartext network traffic, such as cleartext HTTP, FTP stacks, DownloadManager, and MediaPlayer. The default value for apps that target API level 27 or lower is \"true\". Apps that target API level 28 or higher default to \"false\". The key reason for avoiding cleartext traffic is the lack of confidentiality, authenticity, and protections against tampering; a network attacker can eavesdrop on transmitted data and also modify it without being detected.",
+                "section": "manifest"
+            },
+            {
+                "title": "Debug Enabled For App",
+                "description": "[android:debuggable=true]\nDebugging was enabled on the app which makes it easier for reverse engineers to hook a debugger to it. This allows dumping a stack trace and accessing debugging helper classes.",
+                "section": "manifest"
+            },
+            {
+                "title": "Activity (com.ldjSxw.heBbQd.ResultActivity) is vulnerable to StrandHogg 2.0",
+                "description": "Activity is found to be vulnerable to StrandHogg 2.0 task hijacking vulnerability. When vulnerable, it is possible for other applications to place a malicious activity on top of the activity stack of the vulnerable application. This makes the application an easy target for phishing attacks. The vulnerability can be remediated by setting the launch mode attribute to \"singleInstance\" and by setting an empty taskAffinity (taskAffinity=\"\"). You can also update the target SDK version (28) of the app to 29 or higher to fix this issue at platform level.",
+                "section": "manifest"
+            },
+            {
+                "title": "Activity (com.ldjSxw.heBbQd.ScanActivity) is vulnerable to StrandHogg 2.0",
+                "description": "Activity is found to be vulnerable to StrandHogg 2.0 task hijacking vulnerability. When vulnerable, it is possible for other applications to place a malicious activity on top of the activity stack of the vulnerable application. This makes the application an easy target for phishing attacks. The vulnerability can be remediated by setting the launch mode attribute to \"singleInstance\" and by setting an empty taskAffinity (taskAffinity=\"\"). You can also update the target SDK version (28) of the app to 29 or higher to fix this issue at platform level.",
+                "section": "manifest"
+            }
+        ],
+        "warning": [
+            {
+                "title": "Application vulnerable to Janus Vulnerability",
+                "description": "Application is signed with v1 signature scheme, making it vulnerable to Janus vulnerability on Android 5.0-8.0, if signed only with v1 signature scheme. Applications running on Android 5.0-7.0 signed with v1, and v2/v3 scheme is also vulnerable.",
+                "section": "certificate"
+            },
+            {
+                "title": "Application Data can be Backed up",
+                "description": "[android:allowBackup=true]\nThis flag allows anyone to backup your application data via adb. It allows users who have enabled USB debugging to copy application data off of the device.",
+                "section": "manifest"
+            },
+            {
+                "title": "Activity (com.ldjSxw.heBbQd.ResultActivity) is not Protected. ",
+                "description": "[android:exported=true]\nAn Activity is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device.",
+                "section": "manifest"
+            },
+            {
+                "title": "Activity (com.ldjSxw.heBbQd.ScanActivity) is not Protected. ",
+                "description": "[android:exported=true]\nAn Activity is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device.",
+                "section": "manifest"
+            },
+            {
+                "title": "Service (com.ldjSxw.heBbQd.iservice.TaskService) is Protected by a permission, but the protection level of the permission should be checked.",
+                "description": "Permission: android.permission.BIND_ACCESSIBILITY_SERVICE [android:exported=true]\nA Service is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device. It is protected by a permission which is not defined in the analysed application. As a result, the protection level of the permission should be checked where it is defined. If it is set to normal or dangerous, a malicious application can request and obtain the permission and interact with the component. If it is set to signature, only applications signed with the same certificate can obtain the permission.",
+                "section": "manifest"
+            },
+            {
+                "title": "Broadcast Receiver (com.google.android.gms.measurement.AppMeasurementInstallReferrerReceiver) is Protected by a permission, but the protection level of the permission should be checked.",
+                "description": "Permission: android.permission.INSTALL_PACKAGES [android:exported=true]\nA Broadcast Receiver is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device. It is protected by a permission which is not defined in the analysed application. As a result, the protection level of the permission should be checked where it is defined. If it is set to normal or dangerous, a malicious application can request and obtain the permission and interact with the component. If it is set to signature, only applications signed with the same certificate can obtain the permission.",
+                "section": "manifest"
+            },
+            {
+                "title": "Broadcast Receiver (com.google.firebase.iid.FirebaseInstanceIdReceiver) is Protected by a permission, but the protection level of the permission should be checked.",
+                "description": "Permission: com.google.android.c2dm.permission.SEND [android:exported=true]\nA Broadcast Receiver is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device. It is protected by a permission which is not defined in the analysed application. As a result, the protection level of the permission should be checked where it is defined. If it is set to normal or dangerous, a malicious application can request and obtain the permission and interact with the component. If it is set to signature, only applications signed with the same certificate can obtain the permission.",
+                "section": "manifest"
+            },
+            {
+                "title": "Service (com.google.firebase.iid.FirebaseInstanceIdService) is not Protected. ",
+                "description": "[android:exported=true]\nA Service is found to be shared with other apps on the device therefore leaving it accessible to any other application on the device.",
+                "section": "manifest"
+            }
+        ],
+        "info": [],
+        "secure": [
+            {
+                "title": "This application has no privacy trackers",
+                "description": "This application does not include any user or device trackers. Unable to find trackers during static analysis.",
+                "section": "trackers"
+            }
+        ],
+        "hotspot": [
+            {
+                "title": "Found 7 critical permission(s)",
+                "description": "Ensure that these permissions are required by the application.\n\nandroid.permission.REQUEST_INSTALL_PACKAGES (dangerous): Allows an application to request installing packages. - Malicious applications can use this to try and trick users into installing additional malicious packages.\n\nandroid.permission.WRITE_EXTERNAL_STORAGE (dangerous): read/modify/delete external storage contents - Allows an application to write to external storage.\n\nandroid.permission.READ_EXTERNAL_STORAGE (dangerous): read external storage contents - Allows an application to read from external storage.\n\nandroid.permission.GET_TASKS (dangerous): retrieve running applications - Allows application to retrieve information about currently and recently running tasks. May allow malicious applications to discover private information about other applications.\n\nandroid.permission.ACCESS_FINE_LOCATION (dangerous): fine (GPS) location - Access fine location sources, such as the Global Positioning System on the phone, where available. Malicious applications can use this to determine where you are and may consume additional battery power.\n\nandroid.permission.ACCESS_COARSE_LOCATION (dangerous): coarse (network-based) location - Access coarse location sources, such as the mobile network database, to determine an approximate phone location, where available. Malicious applications can use this to determine approximately where you are.\n\nandroid.permission.READ_PHONE_STATE (dangerous): read phone state and identity - Allows the application to access the phone features of the device. An application with this permission can determine the phone number and serial number of this phone, whether a call is active, the number that call is connected to and so on.",
+                "section": "permissions"
+            }
+        ],
+        "total_trackers": 432,
+        "trackers": 0,
+        "security_score": 37,
+        "app_name": "My Scan APP",
+        "file_name": "sample.apk",
+        "hash": "f90f81f7b47ca73de0e5aa5aaeba6735",
+        "version_name": "2.0"
+    },
+    "virus_total": null,
+    "base_url": "file:///home/mobsf/Mobile-Security-Framework-MobSF/mobsf",
+    "dwd_dir": "file:///home/mobsf/.MobSF/downloads/",
+    "host_os": "nix",
+    "timestamp": "2025-12-27T03:53:43.494Z"
+}
