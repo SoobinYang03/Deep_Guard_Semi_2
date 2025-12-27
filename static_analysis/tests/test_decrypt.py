@@ -26,9 +26,9 @@ def test_config():
             "thisiswrongkey!",  # 잘못된 키 3
             "0000000000000000",  # 잘못된 키 4
         ],
-        'mobsf_report': r"C:\Users\twins\Desktop\Deep_Guard_Semi_2\static_analysis\report\mobsf_report_f90f81f7_20251224_225453.json",
-        'dex_dir': r"C:\Users\twins\Desktop\Deep_Guard_Semi_2\report\sample",
-        'output_dir': r"C:\Users\twins\Desktop\Deep_Guard_Semi_2\report\sample"
+        'mobsf_report': r"C:\Users\twins\Desktop\Deep_Guard_Semi_2\static_analysis\output\report\mobsf_report_f90f81f7_20251227_134957.json",
+        'dex_dir': r"C:\Users\twins\Desktop\Deep_Guard_Semi_2\static_analysis\output\extracted\sample_extracted",
+        'output_dir': r"C:\Users\twins\Desktop\Deep_Guard_Semi_2\static_analysis\output\extracted\sample_extracted"
     }
 
 
