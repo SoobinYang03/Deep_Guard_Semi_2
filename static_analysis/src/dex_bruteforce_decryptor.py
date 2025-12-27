@@ -659,11 +659,41 @@ class DexBruteforceDecryptor:
 
 
 if __name__ == "__main__":
-    # 사용 예시
-    mobsf_report = r"C:\Users\twins\Desktop\Deep_Guard_Semi_2\static_analysis\report\mobsf_report_f90f81f7_20251224_225453.json"
-    dex_dir = r"C:\Users\twins\Desktop\Deep_Guard_Semi_2\report\sample"
+    import sys
     
-    decryptor = DexBruteforceDecryptor(mobsf_report, dex_dir)
-    results = decryptor.run()
+    # 로깅 설정
+    logger = LoggerConfig.get_simple_logger(__name__, level=logging.INFO)
     
-    decryptor.logger.info("프로세스 완료!")
+    # 사용법 안내
+    if len(sys.argv) < 3:
+        logger.info("사용법: python dex_bruteforce_decryptor.py <MobSF리포트경로> <DEX디렉토리>")
+        logger.info("예제: python dex_bruteforce_decryptor.py output/report/mobsf_report.json output/extracted/sample_extracted")
+        sys.exit(1)
+    
+    mobsf_report = sys.argv[1]
+    dex_dir = sys.argv[2]
+    
+    # 경로 유효성 검사
+    if not os.path.exists(mobsf_report):
+        logger.error(f"MobSF 리포트 파일을 찾을 수 없습니다: {mobsf_report}")
+        sys.exit(1)
+    
+    if not os.path.exists(dex_dir):
+        logger.error(f"DEX 디렉토리를 찾을 수 없습니다: {dex_dir}")
+        sys.exit(1)
+    
+    # 복호화 실행
+    try:
+        decryptor = DexBruteforceDecryptor(mobsf_report, dex_dir)
+        results = decryptor.run()
+        
+        logger.info("프로세스 완료!")
+        
+        if results['success']:
+            logger.info(f"✓ {results['success_count']}개 파일 복호화 성공")
+        else:
+            logger.warning("✗ 복호화 실패")
+            
+    except Exception as e:
+        logger.error(f"실행 중 오류 발생: {e}")
+        sys.exit(1)
