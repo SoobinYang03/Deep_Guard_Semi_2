@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Dict, Optional
 from dotenv import load_dotenv
 
+from logger_config import LoggerConfig
+
 
 class MobSFAnalyzer:
     """MobSF API를 활용한 APK 분석 클래스"""
@@ -30,20 +32,7 @@ class MobSFAnalyzer:
         self.headers = {'Authorization': api_key} if api_key else {}
         
         # 로깅 설정
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        
-        # 콘솔 핸들러 설정
-        if not self.logger.handlers:
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
-            )
-            console_handler.setFormatter(formatter)
-            self.logger.addHandler(console_handler)
-        
+        self.logger = LoggerConfig.get_logger(__name__, level=logging.DEBUG)
         
         self.logger.info(f"MobSF Analyzer 초기화 완료")
         self.logger.info(f"서버 URL: {self.server_url}")
@@ -183,14 +172,14 @@ class MobSFAnalyzer:
             self.logger.error(f"✗ 스캔 중 예상치 못한 오류 발생: {str(e)}", exc_info=True)
             return None
     
-    def download_report(self, file_hash: str, output_dir: str = "./report", 
+    def download_report(self, file_hash: str, output_dir: Optional[str] = None, 
                        report_format: str = "pdf") -> Optional[str]:
         """
         스캔 리포트 다운로드
         
         Args:
             file_hash: 스캔된 파일의 해시값
-            output_dir: 리포트 저장 디렉토리 (기본값: ./report)
+            output_dir: 리포트 저장 디렉토리 (기본값: None - 프로젝트 루트의 output/report 사용)
             report_format: 리포트 형식 ("pdf" 또는 "json", 기본값: "pdf")
             
         Returns:
@@ -198,6 +187,10 @@ class MobSFAnalyzer:
         """
         
         self.logger.info("리포트 다운로드 시작")
+        
+        # 출력 디렉토리 설정 (기본값: src 폴더의 output/report)
+        if output_dir is None:
+            output_dir = str(Path(__file__).parent.parent / 'output' / 'report')
         
         # 출력 디렉토리 생성
         os.makedirs(output_dir, exist_ok=True)
@@ -267,20 +260,26 @@ class MobSFAnalyzer:
             self.logger.error(f"✗ 리포트 다운로드 중 예상치 못한 오류 발생: {str(e)}", exc_info=True)
             return None
     
-    def analyze_apk(self, apk_path: str, output_dir: str = "./report", 
+    def analyze_apk(self, apk_path: str, output_dir: Optional[str] = None, 
                    download_pdf: bool = True, download_json: bool = True) -> Dict:
         """
         APK 전체 분석 프로세스 실행 (업로드 → 스캔 → 리포트 다운로드)
         
         Args:
             apk_path: 분석할 APK 파일 경로
-            output_dir: 리포트 저장 디렉토리
+            output_dir: 리포트 저장 디렉토리 (기본값: None - 프로젝트 루트의 output/report 사용)
             download_pdf: PDF 리포트 다운로드 여부
             download_json: JSON 리포트 다운로드 여부
             
         Returns:
             분석 결과 딕셔너리
         """
+        
+        self.logger.info("MobSF APK 전체 분석 프로세스 시작")
+        
+        # 출력 디렉토리 설정 (기본값: src 폴더의 output/report)
+        if output_dir is None:
+            output_dir = str(Path(__file__).parent.parent / 'output' / 'report')
         
         self.logger.info("MobSF APK 전체 분석 프로세스 시작")
         
@@ -367,8 +366,15 @@ class MobSFAnalyzer:
 def main():
     """사용 예제"""
     # .env 파일에서 환경 변수 로드 (프로젝트 루트의 .env 파일)
-    env_path = Path(__file__).parent.parent / '.env'
+    env_path = Path(__file__).parent.parent.parent / '.env'
     load_dotenv(dotenv_path=env_path)
+    
+    # .env 파일 경로 확인
+    if not env_path.exists():
+        print(f"⚠ .env 파일을 찾을 수 없습니다: {env_path}")
+        print(f"  프로젝트 루트에 .env 파일을 생성하고 MOBSF=your_api_key 를 추가하세요.")
+    else:
+        print(f"✓ .env 파일 로드됨: {env_path}")
     
     # 커맨드라인 인자 파싱
     parser = argparse.ArgumentParser(
@@ -382,8 +388,8 @@ def main():
     MOBSF_SERVER = "http://localhost:8000"
     MOBSF_API_KEY = os.getenv("MOBSF", "")  # .env 파일에서 API 키 읽기
     
-    # 리포트 저장 디렉토리
-    OUTPUT_DIR = "./report"
+    # 리포트 저장 디렉토리 (src 폴더의 output/report)
+    OUTPUT_DIR = str(Path(__file__).parent.parent / 'output' / 'report')
     
     # MobSF Analyzer 초기화
     analyzer = MobSFAnalyzer(server_url=MOBSF_SERVER, api_key=MOBSF_API_KEY)
