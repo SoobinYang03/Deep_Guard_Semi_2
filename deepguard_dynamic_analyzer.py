@@ -64,7 +64,7 @@ class deepguard_dynamic_analyzer:
         print(f"안드로이드 에뮬레이터 및 Frida 환경 구동 시작 ({apk_path})")
         try:
             #4-1 에뮬레이터 실행
-            print("에뮬레이터 구동 스크립트(deepguard_emulator_default.bat)를 실행합니다...")
+            print("에뮬레이터 구동 스크립트(deepguard_emulator.bat)를 실행합니다...")
             subprocess.run(["deepguard_emulator.bat"], shell=True)
 
             #4-2 에뮬레이터 연결 여부 확인
@@ -105,7 +105,18 @@ class deepguard_dynamic_analyzer:
             subprocess.Popen(["adb", "-s", self.device_name, "shell", "/data/local/tmp/re_frida_server &"], shell=True)
             time.sleep(3)
 
-            #4-6 APK파일 설치
+            #4-6 충돌 오류 디버깅. 대기시간 추가
+            print("패키지 매니저 서비스 응답 대기 중.")
+            for i in range(15):
+                pm_check = subprocess.run(["adb", "-s", self.device_name, "shell", "pm", "path", "android"],
+                                          capture_output=True, text=True)
+                if "package:" in pm_check.stdout:
+                    print(f"패키지 매니저 서비스 가동 확인 ({i + 1}회 시도)")
+                    break
+                print(f"패키지 매니저 대기 중... ({i + 1}/15)")
+                time.sleep(3)
+
+            #4-7 APK파일 설치
             print(f"분석용 APK 설치 중: {apk_path}")
             subprocess.run(["adb", "-s", self.device_name, "install", "-r", apk_path], capture_output=True)
             install_result = subprocess.run(["adb", "-s", self.device_name, "install", "-r", apk_path],
@@ -117,13 +128,13 @@ class deepguard_dynamic_analyzer:
                 return False
 
 
-            #4-7 패키지 추출 및 apk 실행
+            #4-8 패키지 추출 및 apk 실행
             package_name = self.get_package_name(apk_path)
             device = frida.get_usb_device()
             pid = device.spawn([package_name])
             self.current_session = device.attach(pid)
 
-            #4-8 안드로이드 패키지 매니저가 패키지명 확인
+            #4-9 안드로이드 패키지 매니저가 패키지명 확인
             check_pkg = subprocess.run(["adb", "-s", self.device_name, "shell", "pm", "list", "packages", package_name],
                                        capture_output=True, text=True)
             if package_name not in check_pkg.stdout:
@@ -131,10 +142,10 @@ class deepguard_dynamic_analyzer:
                 return False
 
             device = frida.get_usb_device(timeout=10)
-            print(f"Frida서버 내에서 중...")
+            print(f"Frida서버 내에서 실행하는 중...")
             pid = device.spawn([package_name])
 
-            #4-9 agent.js 로드 및 메시지 핸들러 등록
+            #4-10 agent.js 로드 및 메시지 핸들러 등록
             with open("agent.js", "r", encoding="utf-8") as f:
                 script_code = f.read()
 
@@ -159,7 +170,7 @@ class deepguard_dynamic_analyzer:
 
             time.sleep(20)  # 분석 지속 시간
 
-            #4-10 분석이 끝났으니 에뮬레이터 종료
+            #4-11 분석이 끝났으니 에뮬레이터 종료
             self.current_session.detach()
             print("Frida 세션이 성공적으로 해제되었습니다.")
             return True
@@ -299,4 +310,3 @@ if __name__ == "__main__":
     }
 
     analyzer.dynamic_controller("sample.apk", dummy_static_result, mode="speedy")
-
