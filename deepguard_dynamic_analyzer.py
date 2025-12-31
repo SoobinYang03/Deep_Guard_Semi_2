@@ -64,7 +64,7 @@ class deepguard_dynamic_analyzer:
         print(f"안드로이드 에뮬레이터 및 Frida 환경 구동 시작 ({apk_path})")
         try:
             #4-1 에뮬레이터 실행
-            print("에뮬레이터 구동 스크립트(deepguard_emulator.bat)를 실행합니다...")
+            print("에뮬레이터 구동 스크립트(deepguard_emulator_default.bat)를 실행합니다...")
             subprocess.run(["deepguard_emulator.bat"], shell=True)
 
             #4-2 에뮬레이터 연결 여부 확인
@@ -299,3 +299,4 @@ if __name__ == "__main__":
     }
 
     analyzer.dynamic_controller("sample.apk", dummy_static_result, mode="speedy")
+
