@@ -14,9 +14,8 @@ class deepguard_dynamic_analyzer:
 
         self.device_name = mobsf_emulator
         self.output_dir = "dumped_dex"
-        self.emulator_status = False
-        self.frida_status = False
         self.current_session = None
+        self.adb_path = self.get_adb_path()
 
         print(f"분석기 초기화 완료: 타겟 디바이스 -{self.device_name}")
 
@@ -40,39 +39,74 @@ class deepguard_dynamic_analyzer:
         return "adb"
 
     #API2. 정적분석 데이터 수신
-    def receive_static_result(self, static_data):
-        print("정적 분석 데이터를 수신합니다.")
-        return static_data
+    def receive_static_result(self, run_id):
+        base_path = os.path.join(os.getcwd(), "out_runs_b", run_id)
+        evidence_path = os.path.join(base_path, "evidence.json")
+        interpretation_path = os.path.join(base_path, "interpretation.json")
+
+        print(f"API2: 정적 분석 결과 수신 시작. 경로: {base_path})")
+
+        try:
+            with open(evidence_path, 'r', encoding='utf-8') as f:
+                evidence_data = json.load(f)
+            with open(interpretation_path, 'r', encoding='utf-8') as f:
+                interpretation_data = json.load(f)
+
+            print(f"'{run_id}' 폴더에서 데이터를 성공적으로 수신.")
+            return evidence_data, interpretation_data
+        except Exception as e:
+            print(f"API2 오류: '{run_id}' 폴더를 찾을 수 없거나 파일이 손상됨. ({e})")
+            return None, None
 
     #API3. 정적분석결과 파싱. 모드 설정에 따른 로직 설정.
-    def parse_static_result(self, static_data, mode):
+    def parse_static_result(self, evidence, interpretation, mode):
         print(f"정적 분석 데이터를 검토합니다.(모드:{mode})")
-        severity = static_data.get("leaks", {}).get("severity", "safe")
-        tags = static_data.get("leaks", {}).get("tags", [])
-        is_dangerous = (severity != "safe")
+
+        if not evidence or not interpretation:
+            print("파싱 실패: 입력 데이터가 비어 있습니다.")
+            return {"action": "stop", "reason": "empty data"}
+
+        pkg_name = evidence.get("evidence", {}).get("apk.info", {}).get("package_name")
+
+        if not pkg_name:
+            apk_path = evidence.get("inputs", {}).get("apk_path", "")
+            pkg_name = self.get_package_name(apk_path) if apk_path else "unknown"
+
+        static_tags = interpretation.get("tags", [])
+        mitre_techniques = interpretation.get("mitre", {}).get("techniques", [])
+
+        is_dangerous = len(static_tags) > 0
+
+        result_plan = {
+            "package_name": pkg_name,
+            "static_tags": static_tags,
+            "mitre_info": mitre_techniques,
+            "action": "run",
+            "hints": static_tags,
+            "reason": ""
+        }
 
         if mode == "speedy":
             if is_dangerous:
-                print(f"정적 분석간 위협을 발견했습니다. 유도형 분석을 실행합니다. ({tags})")
-                return {"action": "run", "hints": tags}
+                print(f"Speedy Mode. 유도형 동적 분석을 실행합니다. {static_tags}")
+                return {"action": "run", "hints": static_tags, "package_name": pkg_name}
             return {"action": "stop", "reason": "fast mode + static safe"}
 
         elif mode == "exact":
-            print("상세분석 모드. 제로 트러스트의 원칙 적용. 전수조사를 시작합니다.")
-            return {"action": "run", "hints": []}
+            print(f"Exact Mode. 제로트러스트 원칙 적용. 전수조사를 실행합니다.")
+            return {"action": "run", "hints": [], "package_name": pkg_name}
 
         return {"action": "stop", "reason": "unknown mode"}
 
 
     #API4. apk파일의 패키지 이름 추출
     def get_package_name(self, apk_path):
+        if not apk_path or not os.path.exists(apk_path): return None
         try:
-            result = subprocess.run(["aapt", "dump", "badging", apk_path], capture_output=True, text=True, encoding='utf-8')
-
-            for line in result.stdout.splitlines():
-
-                if line.startswith("package: name="):
-                    return line.split("'")[1]
+            result = subprocess.run(["aapt", "dump", "badging", apk_path], capture_output=True, text=True,
+                                    encoding='utf-8')
+            match = re.search(r"package: name='([^']+)'", result.stdout)
+            return match.group(1) if match else None
 
         except Exception as e:
             print(f"패키지 이름 추출 실패: {e}")
@@ -137,19 +171,20 @@ class deepguard_dynamic_analyzer:
 
             #5-6 APK파일 설치
             print(f"분석용 APK 설치 중: {apk_path}")
-            subprocess.run([self.adb_path, "-s", self.device_name, "install", "-r", apk_path], capture_output=True)
-            install_result = subprocess.run([self.adb_path, "-s", self.device_name, "install", "-r", apk_path],
-                                            capture_output=True, text=True)
+            install_result = subprocess.run(
+                [self.adb_path, "-s", self.device_name, "install", "-r", apk_path], capture_output=True, text=True, encoding='utf-8'
+            )
 
             if "Success" not in install_result.stdout:
                 print(f"설치 실패: {install_result.stderr}")
-                # 설치 실패시 중단.
                 return "error", []
 
 
             #5-7 패키지 추출 및 apk 실행
             package_name = self.get_package_name(apk_path)
-            device = frida.get_usb_device()
+            if not package_name:
+                print("패키지명을 추출할 수 없습니다.")
+                return "error", []
 
             #5-8 안드로이드 패키지 매니저가 패키지명 확인
             check_pkg = subprocess.run([self.adb_path, "-s", self.device_name, "shell", "pm", "list", "packages", package_name],
@@ -228,7 +263,7 @@ class deepguard_dynamic_analyzer:
 
         try:
             print(f"{self.device_name}에서 로그를 추출합니다.")
-            command = ["adb", "-s", self.device_name, "logcat", "-d"]
+            command = [self.adb_path, "-s", self.device_name, "logcat", "-d"]
 
             result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='ignore', check=True)
             raw_logs = result.stdout
@@ -283,19 +318,17 @@ class deepguard_dynamic_analyzer:
     def result_json(self, filtered_results, mode, dumped_dex_path=None):
         print(f"최종 결과를 JSON파일로 반환합니다.({mode})")
 
-        status = "success"
-        if filtered_results is None or "emulator" in filtered_results:
-            status = "fail"
+        status = "success" if isinstance(filtered_results, list) else "fail"
 
         result_schema = {
             "analyzer": "dynamic_analyze",
             "analysis_mode" : mode,
             "timestamp": time.time(),
-            "logs": filtered_results,
             "status": status,
             "result_data" : {
                 "dumped_dex_path" : dumped_dex_path,
-                "log_summary" : filtered_results[:500] + "..." if filtered_results else "no logs"
+                "detected_count": len(filtered_results) if isinstance(filtered_results, list) else 0,
+                "log_summary" : filtered_results[:100] if (status == "success" and len(filtered_results) > 0) else "no logs"
             },
             "full_log_file" : "deepguard_second_result.txt"
         }
@@ -303,27 +336,26 @@ class deepguard_dynamic_analyzer:
         return json.dumps(result_schema, indent=4, ensure_ascii=False)
 
     #컨트롤러
-    def dynamic_controller(self, apk_path, static_result_input, mode="speedy", raw_logs=None):
+    def dynamic_controller(self, apk_path, run_id, mode="speedy", raw_logs=None):
 
         #API1 실행
-        data = self.receive_static_result(static_result_input)
+        evidence, interpretation = self.receive_static_result(run_id)
+        if not evidence:
+            return {"error": "Static data not found"}
 
         #API2 실행
-        plan = self.parse_static_result(data, mode)
+        plan = self.parse_static_result(evidence, interpretation, mode)
 
         if plan["action"] == "stop":
             print(f"분석 중단. {plan.get('reason')}")
             return {"msg": f"정적 분석결과에 의해 중단. {plan.get('reason')}"}
 
         #API3 함수 실행
-        success = self.dynamic_environment(apk_path, hints=plan.get("hints"))
-
-        if not success:
-            return {"msg": "환경구성에 실패했습니다."}
+        status, detected_tags = self.dynamic_environment(apk_path, hints=plan.get("hints"))
 
         #API4 실행
         reallogs = self.extract_logcat()
-        filtered_logs = self.regex_filtering(reallogs, static_result_input, mode)
+        filtered_logs = self.regex_filtering(reallogs, interpretation, mode)
 
         #API5 실행
         dump_path = self.output_dir if os.path.exists(self.output_dir) and os.listdir(self.output_dir) else None
@@ -336,16 +368,53 @@ class deepguard_dynamic_analyzer:
 
 #데모파일 테스트
 if __name__ == "__main__":
-    analyzer = deepguard_dynamic_analyzer()
+    analyzer = deepguard_dynamic_analyzer(mobsf_emulator="127.0.0.1:5555")
 
-    dummy_static_result = {
-        "leaks": {
-            "severity": "critical",
-            "tags": ["T_SMS_SEND", "T_NET_CONNECT"]
+    test_run_id = "test_analysis_report_001"
+    apk_file_name = "sample.apk"
+
+    base_path = os.path.join(os.getcwd(), "out_runs_b", test_run_id)
+    os.makedirs(base_path, exist_ok=True)
+
+    mock_evidence = {
+        "evidence": {
+            "apk.info": {
+                "package_name": "com.example.malware.sample"
+            }
         },
-        "static_to_dynamic": {
-            "behavior": ["sms", "record","account_theft"]
+        "inputs": {
+            "apk_path": apk_file_name
         }
     }
 
-    analyzer.dynamic_controller("sample.apk", dummy_static_result, mode="speedy")
+    mock_interpretation = {
+        "tags": ["T_SMS_SEND", "T_NET_CONNECT"],
+        "mitre": {
+            "techniques": ["T1071", "T1132"]
+        },
+        "static_to_dynamic": {
+            "behavior": ["sms", "record", "account_theft"]
+        }
+    }
+
+    with open(os.path.join(base_path, "evidence.json"), "w", encoding="utf-8") as f:
+        json.dump(mock_evidence, f, indent=4)
+    with open(os.path.join(base_path, "interpretation.json"), "w", encoding="utf-8") as f:
+        json.dump(mock_interpretation, f, indent=4)
+
+    print(f"\n--- 테스트 환경 구성 완료: {test_run_id} ---")
+
+    try:
+        final_report = analyzer.dynamic_controller(
+            apk_path=apk_file_name,
+            run_id=test_run_id,
+            mode="speedy"
+        )
+
+        print("\n" + "=" * 50)
+        print("최종 동적 분석 리포트 결과")
+        print("=" * 50)
+        print(final_report)
+
+    except Exception as e:
+        print(f"\n[실행 중단] 동적 분석 중 오류 발생: {e}")
