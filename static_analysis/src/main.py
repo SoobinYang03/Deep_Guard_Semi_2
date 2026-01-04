@@ -74,7 +74,7 @@ class StaticAnalysisPipeline:
         
         try:
             # 1. MobSF 정적 분석
-            self.logger.info("\n[1/4] MobSF 정적 분석 실행 중...")
+            self.logger.info("[1/4] MobSF 정적 분석 실행 중...")
             mobsf_result = self.mobsf_analyzer.analyze_apk(str(self.apk_path))
             
             if mobsf_result and mobsf_result.get('success') and mobsf_result.get('json_report_path'):
@@ -88,14 +88,14 @@ class StaticAnalysisPipeline:
                 return self.results
             
             # 2. APK 압축 해제
-            self.logger.info("\n[2/4] APK 압축 해제 중...")
+            self.logger.info("[2/4] APK 압축 해제 중...")
             extractor = ApkExtractor(str(self.apk_path))
             extract_dir = extractor.extract(force=True)
             self.results['extracted_dir'] = str(extract_dir)
             self.logger.info(f"✓ APK 압축 해제 완료: {extract_dir}")
             
             # 3. DEX 파일 복호화
-            self.logger.info("\n[3/4] DEX 파일 복호화 시도 중...")
+            self.logger.info("[3/4] DEX 파일 복호화 시도 중...")
             
             # 테스트 모드일 때 테스트 리포트 사용
             if test_mode:
@@ -139,12 +139,12 @@ class StaticAnalysisPipeline:
                 
                 # 실제로 복호화에 성공한 파일이 없으면 종료
                 if not actually_decrypted:
-                    self.logger.info("\n복호화가 필요 없거나 실패했으므로 종료합니다.")
+                    self.logger.info("복호화가 필요 없거나 실패했으므로 종료합니다.")
                     self.results['success'] = True
                     return self.results
             
             # 4. APK 재패키징 및 서명 (복호화 성공한 경우만)
-            self.logger.info("\n[4/5] APK 재패키징 및 서명 중...")
+            self.logger.info("[4/5] APK 재패키징 및 서명 중...")
             packer = ApkPacker(str(extract_dir))
             
             # 재패키징 및 서명 (pack 메서드가 자동으로 서명)
@@ -153,7 +153,7 @@ class StaticAnalysisPipeline:
             self.logger.info(f"✓ APK 재패키징 완료: {repackaged_apk}")
             
             # 5. 복호화된 APK를 MobSF로 재분석
-            self.logger.info("\n[5/5] 복호화된 APK MobSF 재분석 중...")
+            self.logger.info("[5/5] 복호화된 APK MobSF 재분석 중...")
             repackaged_mobsf_result = self.mobsf_analyzer.analyze_apk(str(repackaged_apk))
             
             if repackaged_mobsf_result and repackaged_mobsf_result.get('success') and repackaged_mobsf_result.get('json_report_path'):
@@ -169,9 +169,7 @@ class StaticAnalysisPipeline:
             self.results['success'] = True
             
             # 최종 요약
-            self.logger.info("\n" + "="*80)
             self.logger.info("파이프라인 실행 완료")
-            self.logger.info("="*80)
             self.logger.info(f"원본 APK: {self.results['apk_path']}")
             self.logger.info(f"원본 MobSF 리포트: {self.results['mobsf_report']}")
             self.logger.info(f"압축 해제: {self.results['extracted_dir']}")
@@ -186,7 +184,7 @@ class StaticAnalysisPipeline:
             return self.results
             
         except Exception as e:
-            self.logger.error(f"\n✗ 파이프라인 실행 중 오류 발생: {e}")
+            self.logger.error(f"✗ 파이프라인 실행 중 오류 발생: {e}")
             self.results['error'] = str(e)
             return self.results
 
@@ -238,16 +236,16 @@ def main():
         results = pipeline.run_full_pipeline(test_mode=args.test)
         
         if results['success']:
-            logger.info("\n✓ 모든 작업 성공!")
+            logger.info("✓ 모든 작업 성공!")
             sys.exit(0)
         else:
-            logger.error("\n✗ 작업 실패")
+            logger.error("✗ 작업 실패")
             if 'error' in results:
                 logger.error(f"오류: {results['error']}")
             sys.exit(1)
             
     except Exception as e:
-        logger.error(f"\n✗ 실행 중 오류 발생: {e}")
+        logger.error(f"✗ 실행 중 오류 발생: {e}")
         sys.exit(1)
 
 
