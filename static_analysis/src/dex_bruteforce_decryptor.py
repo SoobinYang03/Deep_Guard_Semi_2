@@ -574,7 +574,7 @@ class DexBruteforceDecryptor:
                                 output_dir = os.path.dirname(dex_path)
                             
                             base_name = os.path.basename(dex_path)
-                            output_path = os.path.join(output_dir, f"decrypted_{mode_name}_{base_name}")
+                            output_path = os.path.join(output_dir, base_name)
                             
                             with open(output_path, 'wb') as f:
                                 f.write(decrypted_data)
