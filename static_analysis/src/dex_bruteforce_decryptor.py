@@ -488,7 +488,7 @@ class DexBruteforceDecryptor:
         
         return False
     
-    def decrypt_dex_file(self, dex_path: str, output_dir: Optional[str] = None) -> bool:
+    def decrypt_dex_file(self, dex_path: str, output_dir: Optional[str] = None) -> str:
         """
         DEX 파일 복호화 시도
         
@@ -497,7 +497,9 @@ class DexBruteforceDecryptor:
             output_dir: 복호화된 파일 저장 디렉토리 (None이면 원본 디렉토리)
             
         Returns:
-            복호화 성공 여부
+            "success": 복호화 성공
+            "already_valid": 이미 유효한 DEX 파일
+            "failed": 복호화 실패
         """
         self.logger.info(f"DEX 파일 복호화 시도: {os.path.basename(dex_path)}")
         
@@ -508,7 +510,7 @@ class DexBruteforceDecryptor:
             # 이미 유효한 DEX 파일인지 확인
             if self.is_valid_dex(encrypted_data):
                 self.logger.warning(f"{os.path.basename(dex_path)}는 이미 유효한 DEX 파일입니다.")
-                return True
+                return "already_valid"
             
             # 키 후보 생성
             key_candidates = self.generate_key_candidates()
@@ -589,7 +591,7 @@ class DexBruteforceDecryptor:
                                 'success': True
                             })
                             
-                            return True
+                            return "success"
             
             self.logger.warning("복호화 실패: 유효한 키를 찾지 못했습니다.")
             self.results.append({
@@ -598,11 +600,11 @@ class DexBruteforceDecryptor:
                 'key': None,
                 'success': False
             })
-            return False
+            return "failed"
             
         except Exception as e:
             self.logger.error(f"오류 발생: {e}")
-            return False
+            return "failed"
     
     def run(self, output_dir: Optional[str] = None) -> dict:
         """

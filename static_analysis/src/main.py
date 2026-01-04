@@ -52,6 +52,7 @@ class StaticAnalysisPipeline:
             'extracted_dir': None,
             'decrypted_files': [],
             'repackaged_apk': None,
+            'repackaged_mobsf_report': None,
             'success': False
         }
     
@@ -122,31 +123,47 @@ class StaticAnalysisPipeline:
                 self.logger.warning("⚠ DEX 파일을 찾을 수 없습니다")
             else:
                 # 각 DEX 파일 복호화 시도
+                actually_decrypted = False  # 실제 복호화 성공 여부
                 for dex_file in decryptor.dex_files:
                     result = decryptor.decrypt_dex_file(dex_file)
-                    if result:
+                    if result == "success":
                         self.results['decrypted_files'].append(dex_file)
+                        actually_decrypted = True
+                    elif result == "already_valid":
+                        self.logger.info(f"  {os.path.basename(dex_file)}: 이미 복호화된 상태")
                 
                 if self.results['decrypted_files']:
                     self.logger.info(f"✓ {len(self.results['decrypted_files'])}개 DEX 파일 복호화 성공")
                 else:
-                    self.logger.warning("⚠ 복호화된 DEX 파일이 없습니다")
+                    self.logger.warning("⚠ 새로 복호화된 DEX 파일이 없습니다 (이미 복호화되어 있거나 복호화 실패)")
+                
+                # 실제로 복호화에 성공한 파일이 없으면 종료
+                if not actually_decrypted:
+                    self.logger.info("\n복호화가 필요 없거나 실패했으므로 종료합니다.")
+                    self.results['success'] = True
+                    return self.results
             
-            # 4. APK 재패키징 및 서명
-            self.logger.info("\n[4/4] APK 재패키징 및 서명 중...")
+            # 4. APK 재패키징 및 서명 (복호화 성공한 경우만)
+            self.logger.info("\n[4/5] APK 재패키징 및 서명 중...")
             packer = ApkPacker(str(extract_dir))
-            
-            # 복호화된 DEX 파일이 있으면 교체
-            if self.results['decrypted_files']:
-                decrypted_dir = extract_dir / 'decrypted_dex'
-                if decrypted_dir.exists():
-                    replaced = packer.replace_dex_files(str(decrypted_dir))
-                    self.logger.info(f"  → {replaced}개 DEX 파일 교체됨")
             
             # 재패키징 및 서명 (pack 메서드가 자동으로 서명)
             repackaged_apk = packer.pack(exclude_dirs=['decrypted_dex'])
             self.results['repackaged_apk'] = str(repackaged_apk)
             self.logger.info(f"✓ APK 재패키징 완료: {repackaged_apk}")
+            
+            # 5. 복호화된 APK를 MobSF로 재분석
+            self.logger.info("\n[5/5] 복호화된 APK MobSF 재분석 중...")
+            repackaged_mobsf_result = self.mobsf_analyzer.analyze_apk(str(repackaged_apk))
+            
+            if repackaged_mobsf_result and repackaged_mobsf_result.get('success') and repackaged_mobsf_result.get('json_report_path'):
+                self.results['repackaged_mobsf_report'] = repackaged_mobsf_result['json_report_path']
+                self.logger.info(f"✓ 재패키징된 APK MobSF 리포트 생성: {repackaged_mobsf_result['json_report_path']}")
+            else:
+                self.logger.warning("⚠ 재패키징된 APK MobSF 재분석 실패")
+                if repackaged_mobsf_result and repackaged_mobsf_result.get('errors'):
+                    for error in repackaged_mobsf_result['errors']:
+                        self.logger.warning(f"  - {error}")
             
             # 성공 플래그
             self.results['success'] = True
@@ -156,12 +173,14 @@ class StaticAnalysisPipeline:
             self.logger.info("파이프라인 실행 완료")
             self.logger.info("="*80)
             self.logger.info(f"원본 APK: {self.results['apk_path']}")
-            self.logger.info(f"MobSF 리포트: {self.results['mobsf_report']}")
+            self.logger.info(f"원본 MobSF 리포트: {self.results['mobsf_report']}")
             self.logger.info(f"압축 해제: {self.results['extracted_dir']}")
             if self.results['decrypted_files']:
                 self.logger.info(f"복호화된 DEX: {len(self.results['decrypted_files'])}개")
             if self.results['repackaged_apk']:
                 self.logger.info(f"재패키징된 APK: {self.results['repackaged_apk']}")
+            if self.results['repackaged_mobsf_report']:
+                self.logger.info(f"재패키징된 APK MobSF 리포트: {self.results['repackaged_mobsf_report']}")
             self.logger.info("="*80)
             
             return self.results
