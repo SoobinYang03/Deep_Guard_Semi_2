@@ -1,0 +1,43 @@
+--------- beginning of main
+01-03 13:31:18.620   696   713 I system_server: Background concurrent mark compact GC freed 58MB AllocSpace bytes, 35(864KB) LOS objects, 36% free, 42MB/66MB, paused 30.164ms,40.562ms total 6.790s
+01-03 13:31:18.626  3393  3402 W .android.chrome: userfaultfd: MOVE ioctl seems unsupported: Connection timed out
+01-03 13:31:18.644   696  1198 W ParceledListSlice: Element #26 is 20164 bytes.
+01-03 13:31:18.649   696   823 W ParceledListSlice: Element #27 is 20044 bytes.
+01-03 13:31:18.649   696   823 W ParceledListSlice: Element #28 is 20304 bytes.
+01-03 13:31:18.649   696   823 W ParceledListSlice: Element #29 is 20068 bytes.
+01-03 13:31:18.680  2746  2865 D WM-GreedyScheduler: Ignoring {WorkSpec: 57406a5e-193d-44d1-9bbe-b59c56a62ed4}. Requires device idle.
+01-03 13:31:18.680  2746  2865 D WM-GreedyScheduler: Ignoring {WorkSpec: cf632eba-fe8d-4b22-9853-d388b04a389a}. Requires device idle.
+01-03 13:31:18.680  2746  2865 D WM-GreedyScheduler: Ignoring {WorkSpec: 75e24e24-ce8a-4ef1-97d5-89b6fb55eb11}. Requires device idle.
+01-03 13:31:18.680  2746  2865 D WM-GreedyScheduler: Ignoring {WorkSpec: a3ef4851-73e8-46d0-bc99-cb5c2d0de29d}. Requires device idle.
+01-03 13:31:18.680  2746  2865 D WM-GreedyScheduler: Ignoring {WorkSpec: 9bf227d2-6a40-4355-a3c9-55e23822feda}. Requires device idle.
+01-03 13:31:18.680  2746  2865 D WM-GreedyScheduler: Ignoring {WorkSpec: afc5d958-59f4-40b8-b249-18e36b50f696}. Requires device idle.
+01-03 13:31:18.680  2746  2865 D WM-GreedyScheduler: Ignoring {WorkSpec: 20464017-297d-4b7d-b882-c4393f9c6a89}. Requires device idle.
+01-03 13:31:18.680  2746  2865 D WM-GreedyScheduler: Starting tracking for e0e6aa1c-4135-4910-8468-3595d3628f3d
+--------- beginning of system
+01-03 13:31:18.701   696  4256 I ConfigUpdateInstallReceiver: Installation successful
+01-03 13:31:18.706  3737  4108 E PeriodStatsTracker: Reference counting corrupted in usage statistics.
+01-03 13:31:18.725   696  1084 D ShortcutService: received package broadcast intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x45000010 (has extras) }
+01-03 13:31:18.725   696  1084 D ShortcutService: changing package: com.google.android.settings.intelligence userId=0
+01-03 13:31:18.748  3899  4139 I ConfigUpdater: doneInstall, cleaning up
+01-03 13:31:18.749  3899  4139 D ConfigUpdater: cleanup called
+01-03 13:31:18.769  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.google.android.settings.network.telephony.satellite.SatelliteSettingSosPreferenceController
+01-03 13:31:18.769  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.CallingPreferenceCategoryController
+01-03 13:31:18.770  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.WifiCallingPreferenceController
+01-03 13:31:18.770  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.VideoCallingPreferenceController
+01-03 13:31:18.773  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.cdma.CdmaSystemSelectPreferenceController
+01-03 13:31:18.779  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.cdma.CdmaSubscriptionPreferenceController
+01-03 13:31:18.786  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.NetworkPreferenceCategoryController
+01-03 13:31:18.786  1465  1486 D RTTSettingsCtr: isRttSettingSupported [start]
+01-03 13:31:18.789  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.gsm.AutoSelectPreferenceController
+01-03 13:31:18.789  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.gsm.OpenNetworkSelectPagePreferenceController
+01-03 13:31:18.789  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.ApnPreferenceController
+01-03 13:31:18.789  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.CarrierPreferenceController
+01-03 13:31:18.789  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.Enable2gPreferenceController
+01-03 13:31:18.789  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.NullAlgorithmsPreferenceController
+01-03 13:31:18.789  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.NrAdvancedCallingPreferenceController
+01-03 13:31:18.790  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.ConvertToEsimPreferenceController
+01-03 13:31:18.790  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.TransferEsimPreferenceController
+01-03 13:31:18.790  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.DeleteSimProfilePreferenceController
+01-03 13:31:18.790  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.DisableSimFooterPreferenceController
+01-03 13:31:18.790  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.telephony.NrDisabledInDsdsFooterPreferenceController
+01-03 13:31:18.810  1465  1483 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.notification.PoliteNotificationGlobalPreferenceController
