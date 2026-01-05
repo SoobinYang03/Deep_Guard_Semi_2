@@ -132,7 +132,7 @@ class deepguard_dynamic_analyzer:
                     print(f"에뮬레이터 연결 확인 {i + 1}회 시도함.")
                     connected = True
                     break
-                time.sleep(2)
+                time.sleep(1)
             if not connected:
                 print("에뮬레이터 연결 시간이 초과.")
                 return False
@@ -145,19 +145,19 @@ class deepguard_dynamic_analyzer:
                 if "1" in boot_check.stdout:
                     print(f"시스템 부팅 완료 확인! ({i + 1}회 시도)")
                     break
-                time.sleep(2)
+                time.sleep(1)
 
             #5-4 루트 권한 확인 및 재부여
             subprocess.run([self.adb_path, "connect", self.device_name], capture_output=True)
             subprocess.run([self.adb_path, "-s", self.device_name, "root"], capture_output=True)
-            time.sleep(2)
+            time.sleep(1)
 
             #5-5 Frida서버 실행
             print(f"분석 에뮬레이터 구동{self.device_name}")
             subprocess.run([self.adb_path, "connect", self.device_name], capture_output=True)
             subprocess.run([self.adb_path, "-s", self.device_name, "forward", "tcp:27042", "tcp:27042"], capture_output=True)
             subprocess.Popen([self.adb_path, "-s", self.device_name, "shell", "/data/local/tmp/re_frida_server &"], shell=True)
-            time.sleep(3)
+            time.sleep(1)
 
             print("패키지 매니저 서비스 응답 대기 중.")
             for i in range(15):
@@ -167,7 +167,7 @@ class deepguard_dynamic_analyzer:
                     print(f"패키지 매니저 서비스 가동 확인 ({i + 1}회 시도)")
                     break
                 print(f"패키지 매니저 대기 중... ({i + 1}/15)")
-                time.sleep(3)
+                time.sleep(1)
 
             #5-6 APK파일 설치
             print(f"분석용 APK 설치 중: {apk_path}")
@@ -221,7 +221,9 @@ class deepguard_dynamic_analyzer:
             else:
                 print(f"exact 모드. 전체 전수 조사 분석 중...")
 
-            time.sleep(20)  # 분석 지속 시간
+            time.sleep(10)
+            if not self.current_session or not self.current_session.is_detached:
+                pass
 
             #5-10 정상 분석 이후, 끝났으니 에뮬레이터 종료
             self.current_session.detach()
@@ -251,10 +253,10 @@ class deepguard_dynamic_analyzer:
         #5-12 방어기법으로 검사가 정상적으로 끝나지 않아도 에뮬레이터는 끈다.
         finally:
             print("분석 환경 정리 중: 에뮬레이터 종료.")
-            subprocess.run([self.adb_path, "emu", "kill"], shell=False)
+
 
     #API6. 로그캣으로 로그 전체 가져오기.
-    def extract_logcat(self, output_file="logcat_result.txt"):
+    def extract_logcat(self, output_file="full_logcat_result.txt"):
         print("Logcat 데이터 수집를 수집중입니다.")
 
         if not getattr(self, 'device_name', None):
@@ -315,28 +317,43 @@ class deepguard_dynamic_analyzer:
         return filtered_results
 
     #API8. 결과물 반환.
-    def result_json(self, filtered_results, mode, dumped_dex_path=None):
+    def result_json(self, filtered_results, detected_tags, mode, dumped_dex_path=None):
         print(f"최종 결과를 JSON파일로 반환합니다.({mode})")
 
-        status = "success" if isinstance(filtered_results, list) else "fail"
+        status = "detected" if detected_tags else "success"
+        apk_name = os.path.splitext(os.path.basename(apk_file_name))[0]
+        file_name = f"analyzed_{apk_name}_{mode}.txt"
+
+        try:
+            with open(file_name, "w", encoding="utf-8") as f:
+                if isinstance(filtered_results, list):
+                    f.write("\n".join(map(str, filtered_results)))
+                else:
+                    f.write(str(filtered_results))
+            print(f"로그 파일 생성 완료: {file_name}")
+        except Exception as e:
+            print(f"파일 생성 중 오류 발생: {e}")
 
         result_schema = {
             "analyzer": "dynamic_analyze",
             "analysis_mode" : mode,
             "timestamp": time.time(),
             "status": status,
+            "anti_analysis_tags": detected_tags,
+            "behavior_logs": filtered_results,
             "result_data" : {
+                "apk_name": apk_file_name,
                 "dumped_dex_path" : dumped_dex_path,
                 "detected_count": len(filtered_results) if isinstance(filtered_results, list) else 0,
                 "log_summary" : filtered_results[:100] if (status == "success" and len(filtered_results) > 0) else "no logs"
             },
-            "full_log_file" : "deepguard_second_result.txt"
+            "full_log_file" : "analyzed_result.txt"
         }
 
         return json.dumps(result_schema, indent=4, ensure_ascii=False)
 
     #컨트롤러
-    def dynamic_controller(self, apk_path, run_id, mode="speedy", raw_logs=None):
+    def dynamic_controller(self, apk_path, run_id, mode="speedy"):
 
         #API1 실행
         evidence, interpretation = self.receive_static_result(run_id)
@@ -350,16 +367,25 @@ class deepguard_dynamic_analyzer:
             print(f"분석 중단. {plan.get('reason')}")
             return {"msg": f"정적 분석결과에 의해 중단. {plan.get('reason')}"}
 
+
         #API3 함수 실행
         status, detected_tags = self.dynamic_environment(apk_path, hints=plan.get("hints"))
 
         #API4 실행
         reallogs = self.extract_logcat()
         filtered_logs = self.regex_filtering(reallogs, interpretation, mode)
+        subprocess.run([self.adb_path, "emu", "kill"], shell=False)
 
         #API5 실행
         dump_path = self.output_dir if os.path.exists(self.output_dir) and os.listdir(self.output_dir) else None
-        final_json = self.result_json(filtered_logs, mode, dump_path)
+        final_json = self.result_json(filtered_logs, detected_tags, mode, dump_path)
+
+        result_dir = os.path.join(os.getcwd(), "out_b")
+        if not os.path.exists(result_dir): os.makedirs(result_dir)
+
+        result_file = os.path.join(result_dir, f"dynamic_report_{run_id}.json")
+        with open(result_file, "w", encoding="utf-8") as f:
+            f.write(final_json)
 
         print("\n최종 결과물")
         print(final_json)
@@ -408,7 +434,7 @@ if __name__ == "__main__":
         final_report = analyzer.dynamic_controller(
             apk_path=apk_file_name,
             run_id=test_run_id,
-            mode="speedy"
+            mode="exact"
         )
 
         print("\n" + "=" * 50)
