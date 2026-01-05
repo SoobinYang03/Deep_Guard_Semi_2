@@ -171,12 +171,20 @@ class deepguard_dynamic_analyzer:
 
             #5-6 APK파일 설치
             print(f"분석용 APK 설치 중: {apk_path}")
-            install_result = subprocess.run(
-                [self.adb_path, "-s", self.device_name, "install", "-r", apk_path], capture_output=True, text=True, encoding='utf-8'
-            )
+            install_success = False
+            for i in range(3):
+                install_result = subprocess.run(
+                    [self.adb_path, "-s", self.device_name, "install", "-r", apk_path],
+                    capture_output=True, text=True, encoding='utf-8'
+                )
+                if "Success" in install_result.stdout:
+                    install_success = True
+                    break
+                print(f"설치 재시도 중... ({i + 1}/3)")
+                time.sleep(3)
 
-            if "Success" not in install_result.stdout:
-                print(f"설치 실패: {install_result.stderr}")
+            if not install_success:
+                print(f"최종 설치 실패: {install_result.stderr}")
                 return "error", []
 
 
@@ -317,8 +325,11 @@ class deepguard_dynamic_analyzer:
         return filtered_results
 
     #API8. 결과물 반환.
-    def result_json(self, filtered_results, detected_tags, mode, dumped_dex_path=None):
+    def result_json(self, filtered_results, detected_tags, mode, apk_file_name, dumped_dex_list, analyzed_dex_list, dumped_dex_path=None):
         print(f"최종 결과를 JSON파일로 반환합니다.({mode})")
+
+        dumped_count = len(dumped_dex_list) if dumped_dex_list else 0
+        analyzed_count = len(analyzed_dex_list) if analyzed_dex_list else 0
 
         status = "detected" if detected_tags else "success"
         apk_name = os.path.splitext(os.path.basename(apk_file_name))[0]
@@ -335,20 +346,30 @@ class deepguard_dynamic_analyzer:
             print(f"파일 생성 중 오류 발생: {e}")
 
         result_schema = {
-            "analyzer": "dynamic_analyze",
-            "analysis_mode" : mode,
-            "timestamp": time.time(),
+        "metadata": {
+            "analyzer": "DeepGuard_Dynamic_Engine",
+            "target_app": apk_name,
+            "mode": mode
+        },
+        "analysis_summary": {
             "status": status,
-            "anti_analysis_tags": detected_tags,
-            "behavior_logs": filtered_results,
-            "result_data" : {
-                "apk_name": apk_file_name,
-                "dumped_dex_path" : dumped_dex_path,
-                "detected_count": len(filtered_results) if isinstance(filtered_results, list) else 0,
-                "log_summary" : filtered_results[:100] if (status == "success" and len(filtered_results) > 0) else "no logs"
-            },
-            "full_log_file" : "analyzed_result.txt"
+            "anti_analysis_detected": detected_tags,
+            "dex_extraction": {
+                "dumped_count": len(dumped_dex_list),
+                "analyzed_count": len(analyzed_dex_list),
+                "efficiency": f"{(analyzed_count/dumped_count*100) if dumped_count > 0 else 0:.1f}%"
+            }
+        },
+        "threat_details": {
+            "match_count": len(filtered_results),
+            "matches": filtered_results,
+            "is_encrypted_payload": True
+        },
+        "artifacts": {
+            "dump_path": dumped_dex_path,
+            "log_file": file_name
         }
+    }
 
         return json.dumps(result_schema, indent=4, ensure_ascii=False)
 
@@ -378,7 +399,18 @@ class deepguard_dynamic_analyzer:
 
         #API5 실행
         dump_path = self.output_dir if os.path.exists(self.output_dir) and os.listdir(self.output_dir) else None
-        final_json = self.result_json(filtered_logs, detected_tags, mode, dump_path)
+        dumped_list = os.listdir(dump_path) if os.path.exists(dump_path) else []
+        analyzed_list = [f for f in dumped_list if f.endswith(".dex")]
+
+        final_json = self.result_json(
+            filtered_results=filtered_logs,
+            detected_tags=detected_tags,
+            mode=mode,
+            apk_file_name=apk_path,
+            dumped_dex_list=dumped_list,
+            analyzed_dex_list=analyzed_list,
+            dumped_dex_path=dump_path,
+        )
 
         result_dir = os.path.join(os.getcwd(), "out_b")
         if not os.path.exists(result_dir): os.makedirs(result_dir)
