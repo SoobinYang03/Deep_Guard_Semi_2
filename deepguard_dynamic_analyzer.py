@@ -118,7 +118,7 @@ class deepguard_dynamic_analyzer:
             return None
 
     #API5. MobSF 동적 분석 수행
-    def dynamic_environment(self, file_hash, package_name, hints=None):
+    def dynamic_environment(self, file_hash, package_name, run_id, hints=None):
 
         print(f"MobSF 동적 분석 시작 (Hash: {file_hash})")
         
@@ -186,24 +186,104 @@ class deepguard_dynamic_analyzer:
                 print(f"   ⚠ Frida 서버 시작 실패: {str(e)[:50]}")
             
             # 1-2. Frida spawn 모드로 앱 시작
-            print(f"\n1-2. Frida spawn 중...")
+            print(f"\n1-2. Frida agent.js로 DEX 덤프...")
             agent_path = os.path.join("dynamic_analysis", "agent.js")
             
             if os.path.exists(agent_path):
                 try:
-                    # Frida 명령어로 spawn 실행
-                    print(f"   Frida로 {package_name} spawn 중...")
-                    frida_cmd = f'frida -U -f {package_name} -l {agent_path}'
+                    import frida
                     
-                    # 포어그라운드로 실행 (출력 확인 가능)
-                    subprocess.run(frida_cmd, shell=True)
+                    # Frida Python API 사용 - agent.js로 DEX 덤프
+                    print(f"   Frida로 {package_name} spawn 중 (DEX 덤프)...")
+                    device = frida.get_usb_device()
+                    pid = device.spawn([package_name])
+                    session = device.attach(pid)
                     
-                    print(f"   ✓ Frida spawn 완료")
+                    # agent.js 로드 (DEX 덤프)
+                    with open(agent_path, 'r', encoding='utf-8') as f:
+                        script_code = f.read()
+                    
+                    script = session.create_script(script_code)
+                    
+                    # DEX 덤프 메시지 핸들러
+                    dex_count = [0]  # 카운터를 리스트로 (nonlocal 대신)
+                    
+                    def on_message(message, data):
+                        if message['type'] == 'send':
+                            payload = message.get('payload', {})
+                            
+                            if payload.get('type') == 'dex_dump':
+                                dex_count[0] += 1
+                                addr = payload.get('addr', 'unknown')
+                                size = payload.get('size', 0)
+                                
+                                # DEX 파일 저장
+                                dex_filename = f"dumped_dex_{dex_count[0]}_{addr.replace('0x', '')}.dex"
+                                dex_path = os.path.join("out_runs_b", run_id, dex_filename)
+                                
+                                with open(dex_path, 'wb') as f:
+                                    f.write(data)
+                                
+                                print(f"   [DEX #{dex_count[0]}] 저장됨: {dex_filename} ({size} bytes)")
+                            else:
+                                # 일반 로그 출력
+                                print(f"   [Frida] {payload}")
+                        elif message['type'] == 'error':
+                            print(f"   [Error] {message.get('description', '')}")
+                    
+                    script.on('message', on_message)
+                    script.load()
+                    device.resume(pid)
+                    
+                    print(f"   ✓ agent.js 실행 중 (PID: {pid})")
+                    print(f"   30초 대기 (DEX 덤프 완료까지)...")
+                    time.sleep(30)  # DEX 덤프 완료 대기
+                    
+                    # agent.js 세션 종료
+                    print(f"   agent.js 종료 중...")
+                    device.kill(pid)
+                    session.detach()
+                    print(f"   ✓ agent.js 종료 완료")
+                    time.sleep(2)
                     
                 except Exception as e:
-                    print(f"   ⚠ Frida spawn 실패: {str(e)[:100]}")
+                    print(f"   ⚠ agent.js 실행 실패: {str(e)[:100]}")
+                    import traceback
+                    traceback.print_exc()
             else:
                 print(f"   ⚠ agent.js 파일을 찾을 수 없습니다: {agent_path}")
+            
+            # 1-3. bypass.js로 새로 spawn (Activity.finish() 차단)
+            print(f"\n1-3. Frida bypass.js로 재시작...")
+            bypass_path = os.path.join("dynamic_analysis", "bypass.js")
+            
+            if os.path.exists(bypass_path):
+                try:
+                    print(f"   Frida로 {package_name} spawn 중 (bypass)...")
+                    
+                    # Frida CLI 명령어로 실행
+                    frida_cmd = f'frida -U -f {package_name} -l {bypass_path}'
+                    
+                    # 백그라운드 프로세스로 실행
+                    frida_process = subprocess.Popen(
+                        frida_cmd,
+                        shell=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True
+                    )
+                    
+                    print(f"   ✓ bypass.js 실행 완료 (PID: {frida_process.pid})")
+                    print(f"   Java 런타임 초기화 대기 중 (10초)...")
+                    self.frida_process = frida_process  # 프로세스 유지
+                    time.sleep(10)  # Java 런타임 초기화 대기
+                    
+                except Exception as e:
+                    print(f"   ⚠ bypass.js 실행 실패: {str(e)[:100]}")
+                    import traceback
+                    traceback.print_exc()
+            else:
+                print(f"   ⚠ bypass.js 파일을 찾을 수 없습니다: {bypass_path}")
             
             # 2. 분석 진행 중 대기 (로그 수집 시간 증가)
             print(f"\n2. 분석 진행 중...")
@@ -218,14 +298,38 @@ class deepguard_dynamic_analyzer:
                     try:
                         print(f"   [{i+1}/{min(5, len(mobsf_activities))}] 실행: {activity}")
                         
-                        # adb로 액티비티 실행
-                        activity_cmd = f'{self.adb_path} -s {self.device_name} shell am start -n {package_name}/{activity}'
-                        result = subprocess.run(activity_cmd, shell=True, capture_output=True, text=True, timeout=10)
+                        # MobSF API로 액티비티 실행
+                        activity_url = f"{mobsf_url}/api/v1/android/start_activity"
                         
-                        if result.returncode == 0:
+                        # 전체 패키지명 포함된 액티비티 이름 생성
+                        if activity.startswith('.'):
+                            full_activity = f"{package_name}{activity}"
+                        elif '.' not in activity:
+                            full_activity = f"{package_name}.{activity}"
+                        else:
+                            full_activity = activity
+                        
+                        activity_data = {
+                            "hash": file_hash,
+                            "activity": full_activity
+                        }
+                        
+                        result = requests.post(
+                            activity_url,
+                            headers=headers,
+                            data=activity_data,
+                            timeout=10
+                        )
+                        
+                        print(f"      API URL: {activity_url}")
+                        print(f"      Activity: {full_activity}")
+                        print(f"      Status Code: {result.status_code}")
+                        print(f"      Response: {result.text}")
+                        
+                        if result.status_code == 200:
                             print(f"      ✓ 성공")
                         else:
-                            print(f"      ⚠ 실패: {result.stderr[:50]}")
+                            print(f"      ⚠ 실패")
                         
                         time.sleep(3)  # 각 액티비티 실행 후 대기
                         
@@ -233,8 +337,8 @@ class deepguard_dynamic_analyzer:
                         print(f"      ⚠ 오류: {str(e)[:50]}")
             
             # 추가 대기 (자동 실행 후 로그 수집)
-            print(f"\n2-2. 추가 모니터링 중 (30초)...")
-            time.sleep(30)
+            print(f"\n2-2. 추가 모니터링 중 (10초)...")
+            time.sleep(10)
             
             # 2-3. Frida 로그 및 모니터링 결과 수집
             print(f"\n2-3. Frida 로그 및 모니터링 결과 수집...")
@@ -374,79 +478,6 @@ class deepguard_dynamic_analyzer:
             import traceback
             traceback.print_exc()
             return "error", []
-    
-    # MobSF를 통한 앱 컴포넌트 자동 실행
-    def auto_execute_components(self, mobsf_url, api_key, file_hash, package_name, 
-                                mobsf_activities=None, mobsf_exported_activities=None, mobsf_deeplinks=None):
-        """MobSF API와 adb를 통해 앱의 모든 액티비티/서비스를 자동 실행"""
-        print(f"\n=== 앱 컴포넌트 자동 실행 시작 ===")
-        
-        try:
-            # 1. MobSF에서 받은 액티비티 목록 활용
-            print(f"1. MobSF 액티비티 목록 활용...")
-            activities = mobsf_activities if mobsf_activities else []
-            
-            if activities:
-                print(f"   발견된 액티비티: {len(activities)}개")
-                for i, act in enumerate(activities):
-                    print(f"   [{i+1}] {act}")
-            else:
-                print(f"   MobSF 응답 없음")
-                activities = []
-            
-            # 2. MobSF API로 액티비티 실행
-            print(f"\n2. 액티비티 자동 실행...")
-            headers = {"AUTHORIZATION": api_key}
-            
-            for i, activity in enumerate(activities[:5]):  # 최대 5개 실행
-                try:
-                    activity_url = f"{mobsf_url}/api/v1/android/activity"
-                    activity_data = {
-                        "hash": file_hash,
-                        "test": activity,  # MobSF가 요구하는 파라미터
-                        "activity": activity
-                    }
-                    
-                    print(f"   [{i+1}/{min(5, len(activities))}] 실행: {activity}")
-                    
-                    response = requests.post(
-                        activity_url,
-                        headers=headers,
-                        data=activity_data,
-                        timeout=10
-                    )
-                    
-                    if response.status_code == 200:
-                        print(f"      ✓ 성공")
-                        time.sleep(3)
-                    else:
-                        print(f"      ⚠ API 실패 ({response.status_code})")
-                        
-                except Exception as e:
-                    print(f"      ⚠ 오류: {str(e)[:50]}")
-            
-            # 3. Exported 액티비티 실행
-            if mobsf_exported_activities:
-                print(f"\n3. Exported 액티비티 실행 ({len(mobsf_exported_activities)}개)...")
-                for i, activity in enumerate(mobsf_exported_activities[:3]):
-                    print(f"   [{i+1}] {activity}")
-                    time.sleep(2)
-            
-            # 4. 딥링크 트리거
-            if mobsf_deeplinks:
-                print(f"\n4. 딥링크 트리거...")
-                for activity, deeplink_info in list(mobsf_deeplinks.items())[:3]:
-                    schemes = deeplink_info.get('schemes', [])
-                    for scheme in schemes[:2]:
-                        print(f"   감지: {scheme}")
-                        time.sleep(1)
-            
-            print(f"\n✓ 컴포넌트 자동 실행 완료\n")
-            
-        except Exception as e:
-            print(f"⚠ 컴포넌트 자동 실행 중 오류: {e}")
-    
-
 
     #API6. 로그캣으로 로그 전체 가져오기.
     def extract_logcat(self, output_file="full_logcat_result.txt"):
@@ -584,7 +615,7 @@ class deepguard_dynamic_analyzer:
         print(f"패키지명: {package_name}")
 
         #API3 함수 실행
-        status, detected_tags = self.dynamic_environment(file_hash, package_name, hints=plan.get("hints"))
+        status, detected_tags = self.dynamic_environment(file_hash, package_name, run_id, hints=plan.get("hints"))
 
         #API4 실행
         reallogs = self.extract_logcat()

@@ -1,17 +1,4 @@
 console.log("[+] DeepGuard Frida Agent Loaded!");
-function bypassJava() {
-    Java.perform(function() {
-        console.log("[*] Java runtime ready.");
-        try {
-            var Activity = Java.use("android.app.Activity");
-            Activity.finish.overload().implementation = function() {
-                console.log("[!] Activity.finish() 차단됨");
-            };
-        } catch(err) {
-            console.log("[-] Java bypass error: " + err.message);
-        }
-    });
-}
 
 var dumpedAddresses = []; 
 
@@ -74,8 +61,6 @@ var intervalID = setInterval(function() {
 
 // 30초 뒤 종료
 setTimeout(function() {
-    console.log("[*] 주입 시작...");
-    bypassJava();
-    console.log("[*] 정밀 분석 종료.");
+    console.log("[*] DEX 덤프 종료.");
     clearInterval(intervalID);
-}, 30000);
+}, 5000);
