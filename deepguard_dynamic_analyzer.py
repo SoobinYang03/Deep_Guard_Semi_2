@@ -229,7 +229,7 @@ class deepguard_dynamic_analyzer:
             else:
                 print(f"exact 모드. 전체 전수 조사 분석 중...")
 
-            time.sleep(10)
+            time.sleep(20)
             if not self.current_session or not self.current_session.is_detached:
                 pass
 
@@ -272,10 +272,12 @@ class deepguard_dynamic_analyzer:
             return "emulator name not set"
 
         try:
-            print(f"{self.device_name}에서 로그를 추출합니다.")
-            command = [self.adb_path, "-s", self.device_name, "logcat", "-d"]
+            subprocess.run([self.adb_path, "connect", self.device_name], capture_output=True, timeout=5)
 
-            result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='ignore', check=True)
+            print(f"{self.device_name}에서 로그를 추출합니다.")
+            command = [self.adb_path, "-s", self.device_name, "logcat", "-d", "-v", "time", "-t", "5000"]
+
+            result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='ignore', check=True, timeout=10)
             raw_logs = result.stdout
 
             if raw_logs:
@@ -302,6 +304,10 @@ class deepguard_dynamic_analyzer:
             print(f"{error_message}")
             raw_logs = error_message
 
+        except subprocess.TimeoutExpired:
+            print("ADB 응답 시간 초과")
+            return "timeout_error"
+
         return raw_logs
 
     #API7. 표준정규식으로 인한 탐지 로직 고도화
@@ -310,22 +316,28 @@ class deepguard_dynamic_analyzer:
 
         target_behavior = static_data.get("static_to_dynamic",{}).get("behavior",[])
 
+        log_lines = raw_logs.splitlines()
+
         for category, info in malicious_behavior.items():
 
             if mode == "speedy" and category not in target_behavior:
                 continue
 
-            if re.search(info["pattern"], raw_logs, re.IGNORECASE):
-                filtered_results.append({
-                    "category": category,
-                    "description": info["desc"],
-                    "risk_level": "Critical"
-                })
+            for line in log_lines:
+                if re.search(info["pattern"], line, re.IGNORECASE):
+                    filtered_results.append({
+                        "category": category,
+                        "description": info["desc"],
+                        "risk_level": "Critical",
+                        "evidence": line.strip()
+                    })
+                    break
 
         return filtered_results
 
     #API8. 결과물 반환.
     def result_json(self, filtered_results, detected_tags, mode, apk_file_name, dumped_dex_list, analyzed_dex_list, dumped_dex_path=None):
+        from datetime import datetime
         print(f"최종 결과를 JSON파일로 반환합니다.({mode})")
 
         dumped_count = len(dumped_dex_list) if dumped_dex_list else 0
@@ -334,6 +346,8 @@ class deepguard_dynamic_analyzer:
         status = "detected" if detected_tags else "success"
         apk_name = os.path.splitext(os.path.basename(apk_file_name))[0]
         file_name = f"analyzed_{apk_name}_{mode}.txt"
+
+        evidence_count = sum(1 for match in filtered_results if match.get("evidence"))
 
         try:
             with open(file_name, "w", encoding="utf-8") as f:
@@ -358,6 +372,10 @@ class deepguard_dynamic_analyzer:
                 "dumped_count": len(dumped_dex_list),
                 "analyzed_count": len(analyzed_dex_list),
                 "efficiency": f"{(analyzed_count/dumped_count*100) if dumped_count > 0 else 0:.1f}%"
+            },
+            "evidence_summary": {
+                "total_evidence_found": evidence_count,
+                "reliability_score": "High" if evidence_count > 0 else "Low"
             }
         },
         "threat_details": {
@@ -391,14 +409,15 @@ class deepguard_dynamic_analyzer:
 
         #API3 함수 실행
         status, detected_tags = self.dynamic_environment(apk_path, hints=plan.get("hints"))
+        time.sleep(2)
 
         #API4 실행
         reallogs = self.extract_logcat()
         filtered_logs = self.regex_filtering(reallogs, interpretation, mode)
-        subprocess.run([self.adb_path, "emu", "kill"], shell=False)
+
 
         #API5 실행
-        dump_path = self.output_dir if os.path.exists(self.output_dir) and os.listdir(self.output_dir) else None
+        dump_path = self.output_dir
         dumped_list = os.listdir(dump_path) if os.path.exists(dump_path) else []
         analyzed_list = [f for f in dumped_list if f.endswith(".dex")]
 
@@ -409,7 +428,7 @@ class deepguard_dynamic_analyzer:
             apk_file_name=apk_path,
             dumped_dex_list=dumped_list,
             analyzed_dex_list=analyzed_list,
-            dumped_dex_path=dump_path,
+            dumped_dex_path=dump_path
         )
 
         result_dir = os.path.join(os.getcwd(), "out_b")
@@ -419,9 +438,13 @@ class deepguard_dynamic_analyzer:
         with open(result_file, "w", encoding="utf-8") as f:
             f.write(final_json)
 
+        subprocess.run([self.adb_path, "emu", "kill"], shell=False)
+
         print("\n최종 결과물")
         print(final_json)
         return final_json
+
+
 
 
 #데모파일 테스트
