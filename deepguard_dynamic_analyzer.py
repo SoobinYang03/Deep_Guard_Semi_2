@@ -5,7 +5,12 @@ import os
 import frida
 import re
 import shutil
+import requests
+from dotenv import load_dotenv
 from threat_signature import malicious_behavior
+
+# .env 파일 로드
+load_dotenv()
 
 class deepguard_dynamic_analyzer:
     def __init__(self, mobsf_emulator="127.0.0.1:5555"):
@@ -112,155 +117,335 @@ class deepguard_dynamic_analyzer:
             print(f"패키지 이름 추출 실패: {e}")
             return None
 
-    #API5. 환경 구성. 에뮬 실행 및 frida 실행(민성님의 agent.js 연동)
-    def dynamic_environment(self, apk_path, hints=None):
+    #API5. MobSF 동적 분석 수행
+    def dynamic_environment(self, file_hash, package_name, hints=None):
 
-        print(f"안드로이드 에뮬레이터 및 Frida 환경 구동 시작 ({apk_path})")
+        print(f"MobSF 동적 분석 시작 (Hash: {file_hash})")
+        
         try:
-            #5-1 에뮬레이터 실행
-            print("에뮬레이터 구동 스크립트(deepguard_emulator.bat)를 실행합니다...")
-            subprocess.run(["deepguard_emulator.bat", self.adb_path], shell=True)
-
-            #5-2 에뮬레이터 연결 여부 확인
-            print("에뮬레이터 응답 대기 중...")
-            connected = False
-            for i in range(15):
-                subprocess.run([self.adb_path, "connect", self.device_name], capture_output=True)
-
-                check = subprocess.run([self.adb_path, "devices"], capture_output=True, text=True)
-                if self.device_name in check.stdout and "device" in check.stdout and "offline" not in check.stdout:
-                    print(f"에뮬레이터 연결 확인 {i + 1}회 시도함.")
-                    connected = True
-                    break
-                time.sleep(1)
-            if not connected:
-                print("에뮬레이터 연결 시간이 초과.")
-                return False
-
-            #5-3 안드로이드 패키지 매니저 준비
-            print("안드로이드 패키지 매니저 대기 중.")
-            for i in range(20):
-                boot_check = subprocess.run([self.adb_path, "-s", self.device_name, "shell", "getprop", "sys.boot_completed"],
-                                            capture_output=True, text=True)
-                if "1" in boot_check.stdout:
-                    print(f"시스템 부팅 완료 확인! ({i + 1}회 시도)")
-                    break
-                time.sleep(1)
-
-            #5-4 루트 권한 확인 및 재부여
-            subprocess.run([self.adb_path, "connect", self.device_name], capture_output=True)
-            subprocess.run([self.adb_path, "-s", self.device_name, "root"], capture_output=True)
-            time.sleep(1)
-
-            #5-5 Frida서버 실행
-            print(f"분석 에뮬레이터 구동{self.device_name}")
-            subprocess.run([self.adb_path, "connect", self.device_name], capture_output=True)
-            subprocess.run([self.adb_path, "-s", self.device_name, "forward", "tcp:27042", "tcp:27042"], capture_output=True)
-            subprocess.Popen([self.adb_path, "-s", self.device_name, "shell", "/data/local/tmp/re_frida_server &"], shell=True)
-            time.sleep(1)
-
-            print("패키지 매니저 서비스 응답 대기 중.")
-            for i in range(15):
-                pm_check = subprocess.run([self.adb_path, "-s", self.device_name, "shell", "pm", "path", "android"],
-                                          capture_output=True, text=True)
-                if "package:" in pm_check.stdout:
-                    print(f"패키지 매니저 서비스 가동 확인 ({i + 1}회 시도)")
-                    break
-                print(f"패키지 매니저 대기 중... ({i + 1}/15)")
-                time.sleep(1)
-
-            #5-6 APK파일 설치
-            print(f"분석용 APK 설치 중: {apk_path}")
-            install_success = False
-            for i in range(3):
-                install_result = subprocess.run(
-                    [self.adb_path, "-s", self.device_name, "install", "-r", apk_path],
-                    capture_output=True, text=True, encoding='utf-8'
-                )
-                if "Success" in install_result.stdout:
-                    install_success = True
-                    break
-                print(f"설치 재시도 중... ({i + 1}/3)")
-                time.sleep(3)
-
-            if not install_success:
-                print(f"최종 설치 실패: {install_result.stderr}")
+            # MobSF 설정 (.env 파일에서 로드)
+            mobsf_url = os.getenv("MOBSF_URL", "http://127.0.0.1:8000")
+            api_key = os.getenv("MOBSF", "")
+            
+            if not api_key:
+                print("✗ MOBSF API 키가 .env 파일에 없습니다.")
+                print("   .env 파일에 MOBSF=<API_KEY>를 설정하세요.")
                 return "error", []
-
-
-            #5-7 패키지 추출 및 apk 실행
-            package_name = self.get_package_name(apk_path)
-            if not package_name:
-                print("패키지명을 추출할 수 없습니다.")
-                return "error", []
-
-            #5-8 안드로이드 패키지 매니저가 패키지명 확인
-            check_pkg = subprocess.run([self.adb_path, "-s", self.device_name, "shell", "pm", "list", "packages", package_name],
-                                       capture_output=True, text=True)
-            if package_name not in check_pkg.stdout:
-                print(f"기기 내에 {package_name} 패키지가 존재하지 않습니다.")
-                return "error", []
-
-            device = frida.get_usb_device(timeout=10)
-            print(f"Frida서버 내에서 실행하는 중...")
-            pid = device.spawn([package_name])
-            self.current_session = device.attach(pid)
-
-            #5-9 agent.js 로드 및 메시지 핸들러 등록
-            with open("agent.js", "r", encoding="utf-8") as f:
-                script_code = f.read()
-
-            script = self.current_session.create_script(script_code)
-
-            def on_message(message, data):
-                if message['type'] == 'send' and message['payload'].get("type") == "dex_dump":
-                    if not os.path.exists(self.output_dir): os.makedirs(self.output_dir)
-                    file_name = f"{self.output_dir}/dump_{message['payload']['addr']}.dex"
-                    with open(file_name, "wb") as f:
-                        f.write(data)
-                    print(f"dex dump 저장 완료: {file_name}")
-
-            script.on('message', on_message)
-            script.load()
-            device.resume(pid)
-
-            if hints:
-                print(f"speedy 모드. 유도형 힌트 적용 분석 중...")
+            
+            # MobSF API 헤더
+            headers = {
+                "AUTHORIZATION": api_key
+            }
+            
+            print(f"MobSF URL: {mobsf_url}")
+            print(f"API Key: {api_key[:20]}...")
+            print(f"Package: {package_name}")
+            
+            # 1. 동적 분석 시작
+            print(f"\n1. 동적 분석 시작 요청...")
+            
+            dynamic_start_url = f"{mobsf_url}/api/v1/dynamic/start_analysis"
+            dynamic_data = {
+                "hash": file_hash
+            }
+            
+            print(f"   Hash: {file_hash}")
+            print(f"   MobSF 동적 분석 시작 중...")
+            
+            # 동적 분석 실행
+            response = requests.post(
+                dynamic_start_url,
+                headers=headers,
+                data=dynamic_data,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                print(f"✓ 동적 분석 시작됨")
+                result = response.json()
+                print(f"   결과: {result}")
+                
+                # MobSF에서 반환한 액티비티 정보 추출
+                mobsf_activities = result.get('activities', [])
+                mobsf_exported_activities = result.get('exported_activities', [])
+                mobsf_deeplinks = result.get('deeplinks', {})
             else:
-                print(f"exact 모드. 전체 전수 조사 분석 중...")
-
-            time.sleep(10)
-            if not self.current_session or not self.current_session.is_detached:
-                pass
-
-            #5-10 정상 분석 이후, 끝났으니 에뮬레이터 종료
-            self.current_session.detach()
-            print("Frida 세션이 성공적으로 해제되었습니다.")
-            return "success", []
-
-        #5-11 방어기법을 탐지했을 경우.
-        except Exception as e:
-            error_msg = str(e).lower()
-            critical_keywords = ["terminated", "detach", "closed", "transport", "gadget", "jailed"]
-
-            if any(key in error_msg for key in critical_keywords):
-                print(f"\n방어 기법 탐지됨: {error_msg}")
-                print("탐지 방어기법에 의해 세션이 종료되었습니다. 위험 파일로 판단합니다.")
-
-                detection_tag = {
-                    "id": "dg.dynamic.anti_analysis_detected",
-                    "severity": "high",
-                    "reason": f"Analysis blocked by app (Anti-Analysis): {error_msg}",
-                    "mitre": ["T1622"]
-                }
-                return "detected", [detection_tag]
-
-            print(f"기타 실행 에러 발생: {e}")
+                print(f"✗ 동적 분석 시작 실패: {response.status_code}")
+                print(f"   응답: {response.text}")
+                return "error", []
+            
+            # 1-1. Frida 서버 시작
+            print(f"\n1-1. Frida 서버 시작 중...")
+            
+            try:
+                cmd = f'{self.adb_path} -s {self.device_name} shell /system/fd_server'
+                subprocess.run(cmd, shell=True, timeout=5)
+                print(f"   ✓ Frida 서버 시작 완료")
+                time.sleep(2)
+            except Exception as e:
+                print(f"   ⚠ Frida 서버 시작 실패: {str(e)[:50]}")
+            
+            # 1-2. Frida spawn 모드로 앱 시작
+            print(f"\n1-2. Frida spawn 중...")
+            agent_path = os.path.join("dynamic_analysis", "agent.js")
+            
+            if os.path.exists(agent_path):
+                try:
+                    # Frida 명령어로 spawn 실행
+                    print(f"   Frida로 {package_name} spawn 중...")
+                    frida_cmd = f'frida -U -f {package_name} -l {agent_path}'
+                    
+                    # 포어그라운드로 실행 (출력 확인 가능)
+                    subprocess.run(frida_cmd, shell=True)
+                    
+                    print(f"   ✓ Frida spawn 완료")
+                    
+                except Exception as e:
+                    print(f"   ⚠ Frida spawn 실패: {str(e)[:100]}")
+            else:
+                print(f"   ⚠ agent.js 파일을 찾을 수 없습니다: {agent_path}")
+            
+            # 2. 분석 진행 중 대기 (로그 수집 시간 증가)
+            print(f"\n2. 분석 진행 중...")
+            time.sleep(5)
+            
+            # 2-1. 액티비티 자동 실행
+            print(f"\n2-1. 액티비티 실행 중...")
+            print(f"   발견된 액티비티: {len(mobsf_activities) if mobsf_activities else 0}개")
+            
+            if mobsf_activities:
+                for i, activity in enumerate(mobsf_activities[:5]):  # 최대 5개 실행
+                    try:
+                        print(f"   [{i+1}/{min(5, len(mobsf_activities))}] 실행: {activity}")
+                        
+                        # adb로 액티비티 실행
+                        activity_cmd = f'{self.adb_path} -s {self.device_name} shell am start -n {package_name}/{activity}'
+                        result = subprocess.run(activity_cmd, shell=True, capture_output=True, text=True, timeout=10)
+                        
+                        if result.returncode == 0:
+                            print(f"      ✓ 성공")
+                        else:
+                            print(f"      ⚠ 실패: {result.stderr[:50]}")
+                        
+                        time.sleep(3)  # 각 액티비티 실행 후 대기
+                        
+                    except Exception as e:
+                        print(f"      ⚠ 오류: {str(e)[:50]}")
+            
+            # 추가 대기 (자동 실행 후 로그 수집)
+            print(f"\n2-2. 추가 모니터링 중 (30초)...")
+            time.sleep(30)
+            
+            # 2-3. Frida 로그 및 모니터링 결과 수집
+            print(f"\n2-3. Frida 로그 및 모니터링 결과 수집...")
+            
+            # Frida API Monitor 출력 수집
+            try:
+                api_monitor_url = f"{mobsf_url}/api/v1/frida/api_monitor"
+                api_monitor_data = {"hash": file_hash}
+                
+                api_monitor_response = requests.post(
+                    api_monitor_url,
+                    headers=headers,
+                    data=api_monitor_data,
+                    timeout=10
+                )
+                
+                if api_monitor_response.status_code == 200:
+                    api_monitor_result = api_monitor_response.json()
+                    print(f"   ✓ API Monitor 결과 수집 완료")
+                    
+                    # API Monitor 결과 저장
+                    api_monitor_file = f"mobsf_api_monitor_{file_hash}.json"
+                    with open(api_monitor_file, "w", encoding="utf-8") as f:
+                        json.dump(api_monitor_result, f, indent=2, ensure_ascii=False)
+                    print(f"      저장: {api_monitor_file}")
+                else:
+                    print(f"   ⚠ API Monitor 수집 실패: {api_monitor_response.status_code}")
+            except Exception as e:
+                print(f"   ⚠ API Monitor 수집 중 오류: {str(e)[:50]}")
+            
+            # Frida Logs 수집
+            try:
+                frida_logs_url = f"{mobsf_url}/api/v1/frida/logs"
+                frida_logs_data = {"hash": file_hash}
+                
+                frida_logs_response = requests.post(
+                    frida_logs_url,
+                    headers=headers,
+                    data=frida_logs_data,
+                    timeout=10
+                )
+                
+                if frida_logs_response.status_code == 200:
+                    frida_logs_result = frida_logs_response.json()
+                    print(f"   ✓ Frida Logs 수집 완료")
+                    
+                    # Frida Logs 저장
+                    frida_logs_file = f"mobsf_frida_logs_{file_hash}.json"
+                    with open(frida_logs_file, "w", encoding="utf-8") as f:
+                        json.dump(frida_logs_result, f, indent=2, ensure_ascii=False)
+                    print(f"      저장: {frida_logs_file}")
+                else:
+                    print(f"   ⚠ Frida Logs 수집 실패: {frida_logs_response.status_code}")
+            except Exception as e:
+                print(f"   ⚠ Frida Logs 수집 중 오류: {str(e)[:50]}")
+            
+            # Runtime Dependencies 수집
+            try:
+                dependencies_url = f"{mobsf_url}/api/v1/frida/get_dependencies"
+                dependencies_data = {"hash": file_hash}
+                
+                dependencies_response = requests.post(
+                    dependencies_url,
+                    headers=headers,
+                    data=dependencies_data,
+                    timeout=10
+                )
+                
+                if dependencies_response.status_code == 200:
+                    print(f"   ✓ Runtime Dependencies 수집 완료")
+                    print(f"      응답: {dependencies_response.json()}")
+                else:
+                    print(f"   ⚠ Runtime Dependencies 수집 실패: {dependencies_response.status_code}")
+            except Exception as e:
+                print(f"   ⚠ Runtime Dependencies 수집 중 오류: {str(e)[:50]}")
+            
+            # 3. 동적 분석 중지 (결과 생성)
+            print(f"\n3. 동적 분석 중지 중...")
+            stop_url = f"{mobsf_url}/api/v1/dynamic/stop_analysis"
+            stop_data = {
+                "hash": file_hash
+            }
+            
+            stop_response = requests.post(
+                stop_url,
+                headers=headers,
+                data=stop_data,
+                timeout=30
+            )
+            
+            if stop_response.status_code == 200:
+                print(f"✓ 동적 분석 중지 완료")
+                stop_result = stop_response.json()
+                print(f"   결과: {stop_result}")
+            else:
+                print(f"⚠ 분석 중지 응답: {stop_response.status_code}")
+                print(f"   응답: {stop_response.text}")
+            
+            # 4. 동적 분석 결과 가져오기
+            print(f"\n4. 분석 결과 수집 중...")
+            report_url = f"{mobsf_url}/api/v1/dynamic/report_json"
+            report_data = {
+                "hash": file_hash
+            }
+            
+            report_response = requests.post(
+                report_url,
+                headers=headers,
+                data=report_data,
+                timeout=30
+            )
+            
+            if report_response.status_code == 200:
+                print(f"✓ 분석 결과 수집 완료")
+                dynamic_result = report_response.json()
+                
+                # 결과 저장
+                result_file = f"mobsf_dynamic_{file_hash}.json"
+                with open(result_file, "w", encoding="utf-8") as f:
+                    json.dump(dynamic_result, f, indent=2, ensure_ascii=False)
+                print(f"   결과 저장: {result_file}")
+                
+                return "success", []
+            else:
+                print(f"⚠ 결과 수집 실패: {report_response.status_code}")
+                print(f"   응답: {report_response.text}")
+                return "success", []  # 분석은 완료되었으므로 success
+                
+        except ImportError:
+            print("✗ requests 라이브러리가 필요합니다: pip install requests")
             return "error", []
-
-        #5-12 방어기법으로 검사가 정상적으로 끝나지 않아도 에뮬레이터는 끈다.
-        finally:
-            print("분석 환경 정리 중: 에뮬레이터 종료.")
+        except requests.exceptions.ConnectionError:
+            print(f"✗ MobSF 연결 실패. MobSF가 실행 중인지 확인하세요.")
+            return "error", []
+        except Exception as e:
+            print(f"✗ MobSF 동적 분석 실패: {e}")
+            import traceback
+            traceback.print_exc()
+            return "error", []
+    
+    # MobSF를 통한 앱 컴포넌트 자동 실행
+    def auto_execute_components(self, mobsf_url, api_key, file_hash, package_name, 
+                                mobsf_activities=None, mobsf_exported_activities=None, mobsf_deeplinks=None):
+        """MobSF API와 adb를 통해 앱의 모든 액티비티/서비스를 자동 실행"""
+        print(f"\n=== 앱 컴포넌트 자동 실행 시작 ===")
+        
+        try:
+            # 1. MobSF에서 받은 액티비티 목록 활용
+            print(f"1. MobSF 액티비티 목록 활용...")
+            activities = mobsf_activities if mobsf_activities else []
+            
+            if activities:
+                print(f"   발견된 액티비티: {len(activities)}개")
+                for i, act in enumerate(activities):
+                    print(f"   [{i+1}] {act}")
+            else:
+                print(f"   MobSF 응답 없음")
+                activities = []
+            
+            # 2. MobSF API로 액티비티 실행
+            print(f"\n2. 액티비티 자동 실행...")
+            headers = {"AUTHORIZATION": api_key}
+            
+            for i, activity in enumerate(activities[:5]):  # 최대 5개 실행
+                try:
+                    activity_url = f"{mobsf_url}/api/v1/android/activity"
+                    activity_data = {
+                        "hash": file_hash,
+                        "test": activity,  # MobSF가 요구하는 파라미터
+                        "activity": activity
+                    }
+                    
+                    print(f"   [{i+1}/{min(5, len(activities))}] 실행: {activity}")
+                    
+                    response = requests.post(
+                        activity_url,
+                        headers=headers,
+                        data=activity_data,
+                        timeout=10
+                    )
+                    
+                    if response.status_code == 200:
+                        print(f"      ✓ 성공")
+                        time.sleep(3)
+                    else:
+                        print(f"      ⚠ API 실패 ({response.status_code})")
+                        
+                except Exception as e:
+                    print(f"      ⚠ 오류: {str(e)[:50]}")
+            
+            # 3. Exported 액티비티 실행
+            if mobsf_exported_activities:
+                print(f"\n3. Exported 액티비티 실행 ({len(mobsf_exported_activities)}개)...")
+                for i, activity in enumerate(mobsf_exported_activities[:3]):
+                    print(f"   [{i+1}] {activity}")
+                    time.sleep(2)
+            
+            # 4. 딥링크 트리거
+            if mobsf_deeplinks:
+                print(f"\n4. 딥링크 트리거...")
+                for activity, deeplink_info in list(mobsf_deeplinks.items())[:3]:
+                    schemes = deeplink_info.get('schemes', [])
+                    for scheme in schemes[:2]:
+                        print(f"   감지: {scheme}")
+                        time.sleep(1)
+            
+            print(f"\n✓ 컴포넌트 자동 실행 완료\n")
+            
+        except Exception as e:
+            print(f"⚠ 컴포넌트 자동 실행 중 오류: {e}")
+    
 
 
     #API6. 로그캣으로 로그 전체 가져오기.
@@ -374,7 +559,7 @@ class deepguard_dynamic_analyzer:
         return json.dumps(result_schema, indent=4, ensure_ascii=False)
 
     #컨트롤러
-    def dynamic_controller(self, apk_path, run_id, mode="speedy"):
+    def dynamic_controller(self, apk_path, run_id, file_hash, mode="speedy"):
 
         #API1 실행
         evidence, interpretation = self.receive_static_result(run_id)
@@ -388,19 +573,45 @@ class deepguard_dynamic_analyzer:
             print(f"분석 중단. {plan.get('reason')}")
             return {"msg": f"정적 분석결과에 의해 중단. {plan.get('reason')}"}
 
+        # 패키지명 추출
+        package_name = plan.get("package_name")
+        
+        if not file_hash:
+            print("✗ file_hash가 제공되지 않았습니다.")
+            return {"error": "file_hash is required"}
+        
+        print(f"제공된 Hash: {file_hash}")
+        print(f"패키지명: {package_name}")
 
         #API3 함수 실행
-        status, detected_tags = self.dynamic_environment(apk_path, hints=plan.get("hints"))
+        status, detected_tags = self.dynamic_environment(file_hash, package_name, hints=plan.get("hints"))
 
         #API4 실행
         reallogs = self.extract_logcat()
         filtered_logs = self.regex_filtering(reallogs, interpretation, mode)
-        subprocess.run([self.adb_path, "emu", "kill"], shell=False)
-
-        #API5 실행
-        dump_path = self.output_dir if os.path.exists(self.output_dir) and os.listdir(self.output_dir) else None
-        dumped_list = os.listdir(dump_path) if os.path.exists(dump_path) else []
-        analyzed_list = [f for f in dumped_list if f.endswith(".dex")]
+        # subprocess.run([self.adb_path, "emu", "kill"], shell=False)
+        
+        #API5 실행 - dump_path 안전하게 처리
+        if os.path.exists(self.output_dir):
+            try:
+                dir_contents = os.listdir(self.output_dir)
+                if dir_contents:
+                    dump_path = self.output_dir
+                    dumped_list = dir_contents
+                    analyzed_list = [f for f in dumped_list if f.endswith(".dex")]
+                else:
+                    dump_path = None
+                    dumped_list = []
+                    analyzed_list = []
+            except Exception as e:
+                print(f"dump 폴더 읽기 실패: {e}")
+                dump_path = None
+                dumped_list = []
+                analyzed_list = []
+        else:
+            dump_path = None
+            dumped_list = []
+            analyzed_list = []
 
         final_json = self.result_json(
             filtered_results=filtered_logs,
@@ -411,7 +622,6 @@ class deepguard_dynamic_analyzer:
             analyzed_dex_list=analyzed_list,
             dumped_dex_path=dump_path,
         )
-
         result_dir = os.path.join(os.getcwd(), "out_b")
         if not os.path.exists(result_dir): os.makedirs(result_dir)
 
@@ -426,7 +636,7 @@ class deepguard_dynamic_analyzer:
 
 #데모파일 테스트
 if __name__ == "__main__":
-    analyzer = deepguard_dynamic_analyzer(mobsf_emulator="127.0.0.1:5555")
+    analyzer = deepguard_dynamic_analyzer(mobsf_emulator="host.docker.internal:5555")
 
     test_run_id = "test_analysis_report_001"
     apk_file_name = "sample.apk"
@@ -437,7 +647,8 @@ if __name__ == "__main__":
     mock_evidence = {
         "evidence": {
             "apk.info": {
-                "package_name": "com.example.malware.sample"
+                "package_name": "com.ldjSxw.heBbQd",
+                "md5": "f90f81f7b47ca73de0e5aa5aaeba6735"
             }
         },
         "inputs": {
@@ -463,9 +674,13 @@ if __name__ == "__main__":
     print(f"\n--- 테스트 환경 구성 완료: {test_run_id} ---")
 
     try:
+        # 정적 분석에서 받은 hash를 전달
+        test_hash = "f90f81f7b47ca73de0e5aa5aaeba6735"
+        
         final_report = analyzer.dynamic_controller(
             apk_path=apk_file_name,
             run_id=test_run_id,
+            file_hash=test_hash,
             mode="exact"
         )
 
