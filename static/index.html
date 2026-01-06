@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Deep Guard Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hdr">
+      <h1>Deep Guard Dashboard</h1>
+      <div class="topbar">
+        <label class="lbl">out_dir</label>
+        <input id="outDir" class="inp" value="out_runs_b/7a"/>
+        <button id="btnLoad" class="btn">Load</button>
+        <button id="btnLoadTopN" class="btn">Load TopN</button>
+        <span id="status" class="status">idle</span>
+      </div>
+
+      <!-- 메인 메뉴 탭 -->
+      <nav class="tabs" id="mainTabs">
+        <button class="tab active" data-tab="tabDexTopn">DEX TopN</button>
+        <button class="tab" data-tab="tabContext">Context</button>
+        <button class="tab" data-tab="tabDecrypted">Decrypted Tree</button>
+        <button class="tab" data-tab="tabMitre">MITRE</button>
+        <button class="tab" data-tab="tabIoc">IOC</button>
+        <button class="tab" data-tab="tabRaw">Raw</button>
+      </nav>
+    </header>
+
+    <!-- DEX TopN -->
+    <section id="tabDexTopn" class="panel active">
+      <div class="row">
+        <div class="box">
+          <label class="lbl2">TopN</label>
+          <input id="topnN" class="inp2" type="number" value="30" min="1" max="500"/>
+        </div>
+        <div class="box">
+          <label class="lbl2">min_len</label>
+          <input id="topnMinLen" class="inp2" type="number" value="6" min="1" max="64"/>
+        </div>
+
+        <div class="box">
+          <label class="lbl2">filters</label>
+          <div class="toggles">
+            <label><input type="checkbox" id="allowLocalhost" checked> localhost</label>
+            <label><input type="checkbox" id="allowPunycode" checked> punycode</label>
+            <label><input type="checkbox" id="allowIpAsUrl" checked> ip-as-url</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- TopN 분리 탭 -->
+      <nav class="subtabs" id="topnTabs">
+        <button class="stab active" data-topn="urls">URLs</button>
+        <button class="stab" data-topn="domains">Domains</button>
+        <button class="stab" data-topn="keywords">Keywords</button>
+      </nav>
+
+      <div class="tableWrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th style="width:90px;">count</th>
+              <th>value</th>
+              <th style="width:110px;">actions</th>
+            </tr>
+          </thead>
+          <tbody id="topnTbody"></tbody>
+        </table>
+      </div>
+      <div class="meta" id="topnMeta"></div>
+    </section>
+
+    <!-- Context -->
+    <section id="tabContext" class="panel">
+      <div class="row">
+        <input id="needle" class="inp" placeholder="click TopN row or type needle"/>
+        <div class="box">
+          <label class="lbl2">radius</label>
+          <input id="radius" class="inp2" type="number" value="3" min="0" max="50"/>
+        </div>
+        <button id="btnContext" class="btn">Load Context</button>
+      </div>
+      <div class="meta" id="ctxMeta"></div>
+      <div id="ctxOut"></div>
+    </section>
+
+    <!-- Decrypted Tree -->
+    <section id="tabDecrypted" class="panel">
+      <div class="row">
+        <input id="treeFilter" class="inp" placeholder="filter (contains)"/>
+        <button id="btnTree" class="btn">Load Tree</button>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <h3>File Tree</h3>
+          <div id="treeList" class="list"></div>
+        </div>
+        <div>
+          <h3>Preview / DEX</h3>
+          <div class="prebox">
+            <div class="meta" id="previewMeta"></div>
+            <pre id="previewHex" class="pre"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MITRE -->
+    <section id="tabMitre" class="panel">
+      <div class="row">
+        <button id="btnMitre" class="btn">Load MITRE</button>
+        <div class="meta" id="mitreMeta"></div>
+        <div class="box">
+          <label class="lbl2">search</label>
+          <input id="mitreSearch" class="inp2" placeholder="t1412, sms, frida..."/>
+        </div>
+        <div class="box">
+          <label class="lbl2">sort</label>
+          <select id="mitreSort" class="inp2">
+            <option value="id_asc">technique_id ↑</option>
+            <option value="id_desc">technique_id ↓</option>
+            <option value="w_desc">weight ↓</option>
+            <option value="w_asc">weight ↑</option>
+          </select>
+        </div>
+      </div>
+
+      <h3>MITRE Techniques</h3>
+      <div class="tableWrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th style="width:120px;">technique_id</th>
+              <th style="width:80px;">weight</th>
+              <th>reason</th>
+            </tr>
+          </thead>
+          <tbody id="mitreTechTbody"></tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:18px;">Tag → MITRE mapping</h3>
+      <div class="tableWrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>tag</th>
+              <th style="width:90px;">sev</th>
+              <th style="width:120px;">mitre</th>
+              <th style="width:140px;">source</th>
+              <th>reason</th>
+            </tr>
+          </thead>
+          <tbody id="mitreTagTbody"></tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:18px;">Raw</h3>
+      <pre id="mitreBox" class="pre"></pre>
+    </section>
+
+    <!-- IOC -->
+    <section id="tabIoc" class="panel">
+      <div class="row">
+        <button id="btnIoc" class="btn">Load IOC</button>
+        <div class="meta" id="iocMeta"></div>
+      </div>
+      <pre id="iocBox" class="pre"></pre>
+    </section>
+
+    <!-- Raw -->
+    <section id="tabRaw" class="panel">
+      <div class="row">
+        <button id="btnRaw" class="btn">Load Raw</button>
+        <div class="meta" id="rawMeta"></div>
+      </div>
+      <pre id="rawBox" class="pre"></pre>
+    </section>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Deep Guard Dashboard (FastAPI)</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="top">
+    <h1>Deep Guard Dashboard</h1>
+    <div class="row">
+      <label>run out_dir</label>
+      <input id="outdir" value="out_runs_b/7a" />
+      <button id="btnLoad">Load</button>
+      <span id="status" class="muted"></span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="decryption">Decryption</button>
+    <button class="tab" data-tab="mitre">MITRE</button>
+    <button class="tab" data-tab="ioc">IOC</button>
+    <button class="tab" data-tab="decrypted">Decrypted</button>
+    <button class="tab" data-tab="raw">Raw JSON</button>
+  </nav>
+
+  <main>
+    <section id="tab-decryption" class="pane active">
+      <h2>Decryption</h2>
+      <div id="decCards" class="cards"></div>
+
+      <h3>Decryption Tags (from interpretation.tags where source=decryption)</h3>
+      <div id="decTags"></div>
+    </section>
+
+    <section id="tab-mitre" class="pane">
+      <h2>MITRE Techniques</h2>
+      <div id="mitreTable"></div>
+
+      <h3>Tag → MITRE 매핑 근거 (tag 목록)</h3>
+      <div id="tagMitreTable"></div>
+    </section>
+
+    <section id="tab-ioc" class="pane">
+      <h2>IOC</h2>
+      <div id="iocCards" class="cards"></div>
+
+      <h3>IOC 리스트</h3>
+      <div class="grid2">
+        <div><h4>URLs</h4><div id="iocUrls"></div></div>
+        <div><h4>Domains</h4><div id="iocDomains"></div></div>
+        <div><h4>IPs</h4><div id="iocIps"></div></div>
+        <div><h4>Emails</h4><div id="iocEmails"></div></div>
+      </div>
+    </section>
+
+    <section id="tab-decrypted" class="pane">
+      <h2>Decrypted</h2>
+
+      <div class="row">
+        <label>filter</label>
+        <input id="decFilter" value="" placeholder="contains..." />
+        <button id="btnTree">Load Tree</button>
+        <button id="btnDexTopn">DEX TopN</button>
+      </div>
+
+      <div class="grid2" style="margin-top:12px;">
+        <div>
+          <h3>File Tree</h3>
+          <div id="decTree" class="box"></div>
+        </div>
+        <div>
+          <h3>Preview / DEX</h3>
+          <div id="decPreview" class="box"></div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:18px;">DEX Context</h3>
+      <div class="row">
+        <label>needle</label>
+        <input id="dexNeedle" value="http://38.181.2.17" />
+        <button id="btnDexCtx">Find Context</button>
+      </div>
+      <div id="dexCtx" class="box" style="margin-top:12px;"></div>
+    </section>
+
+    <section id="tab-raw" class="pane">
+      <h2>Raw interpretation.json</h2>
+      <pre id="rawJson" class="pre"></pre>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
