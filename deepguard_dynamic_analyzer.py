@@ -502,11 +502,38 @@ class deepguard_dynamic_analyzer:
                 print(f"✓ 분석 결과 수집 완료")
                 dynamic_result = report_response.json()
                 
-                # 결과 저장
+                # JSON 결과 저장
                 result_file = f"mobsf_dynamic_{file_hash}.json"
                 with open(result_file, "w", encoding="utf-8") as f:
                     json.dump(dynamic_result, f, indent=2, ensure_ascii=False)
-                print(f"   결과 저장: {result_file}")
+                print(f"   JSON 저장: {result_file}")
+                
+                # PDF 결과 저장
+                print(f"\n5. PDF 리포트 다운로드 중...")
+                pdf_url = f"{mobsf_url}/api/v1/dynamic/report_pdf"
+                pdf_data = {
+                    "hash": file_hash
+                }
+                
+                try:
+                    pdf_response = requests.post(
+                        pdf_url,
+                        headers=headers,
+                        data=pdf_data,
+                        timeout=60
+                    )
+                    
+                    if pdf_response.status_code == 200 and pdf_response.content:
+                        pdf_file = f"mobsf_dynamic_{file_hash}.pdf"
+                        with open(pdf_file, "wb") as f:
+                            f.write(pdf_response.content)
+                        print(f"   ✓ PDF 저장: {pdf_file}")
+                    else:
+                        print(f"   ⚠ PDF 다운로드 실패: {pdf_response.status_code}")
+                        if pdf_response.text:
+                            print(f"   응답: {pdf_response.text[:200]}")
+                except Exception as e:
+                    print(f"   ⚠ PDF 다운로드 오류: {str(e)[:50]}")
                 
                 return "success", []
             else:
@@ -536,22 +563,28 @@ class deepguard_dynamic_analyzer:
 
         try:
             print(f"{self.device_name}에서 로그를 추출합니다.")
-            command = [self.adb_path, "-s", self.device_name, "logcat", "-d"]
+            # -d: 현재까지의 로그만 덤프하고 종료 (실시간 스트리밍 방지)
+            # -v brief: 간결한 형식
+            command = [self.adb_path, "-s", self.device_name, "logcat", "-d", "-v", "brief"]
 
-            result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='ignore', check=True)
+            result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='ignore', check=False)
             raw_logs = result.stdout
 
-            if raw_logs:
+            if result.returncode == 0 and raw_logs:
                 with open(output_file, "w", encoding="utf-8") as f:
                     f.write(raw_logs)
+                print(f"   ✓ 로그 수집 완료: {len(raw_logs)} bytes")
                 return raw_logs
-
+            elif result.returncode != 0:
+                print(f"   ⚠ Logcat 반환 코드: {result.returncode}")
+                print(f"   stderr: {result.stderr[:200]}")
+                return "logcat error"
             else:
-                print("수집된 로그가 비어 있습니다.")
-                raw_logs = "empty logs"
+                print("   수집된 로그가 비어 있습니다.")
+                return "empty logs"
 
-        except subprocess.CalledProcessError as e:
-            error_message = f"ADB 명령 실행 중 오류 발생. {e}"
+        except Exception as e:
+            error_message = f"Logcat 추출 중 오류: {str(e)[:100]}"
             print(f"{error_message}")
             raw_logs = error_message
 
