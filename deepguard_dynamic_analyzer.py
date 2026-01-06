@@ -174,6 +174,63 @@ class deepguard_dynamic_analyzer:
                 print(f"   응답: {response.text}")
                 return "error", []
             
+            # 1-0. Logcat 클리어 및 스트리밍 시작
+            print(f"\n1-0. Logcat 초기화 중...")
+            try:
+                # 기존 로그 클리어
+                clear_cmd = f'{self.adb_path} -s {self.device_name} logcat -c'
+                subprocess.run(clear_cmd, shell=True, timeout=5, capture_output=True)
+                print(f"   ✓ Logcat 클리어 완료")
+                
+                # MobSF Logcat 스트리밍 시작 (파일에 직접 저장)
+                logcat_url = f"{mobsf_url}/api/v1/android/logcat"
+                logcat_data = {"package": package_name}
+                
+                print(f"   Logcat 스트리밍 시작 중...")
+                
+                # 로그 파일 경로 설정
+                self.logcat_file = f"mobsf_logcat_{file_hash}.txt"
+                self.logcat_running = True
+                
+                # 스트리밍을 별도 스레드로 처리하면서 파일에 직접 저장
+                import threading
+                
+                def stream_logcat_to_file():
+                    line_count = [0]
+                    try:
+                        response = requests.post(
+                            logcat_url,
+                            headers=headers,
+                            data=logcat_data,
+                            stream=True,
+                            timeout=None
+                        )
+                        
+                        with open(self.logcat_file, 'w', encoding='utf-8') as f:
+                            for line in response.iter_lines():
+                                if not self.logcat_running:
+                                    break
+                                if line:
+                                    decoded_line = line.decode('utf-8', errors='ignore')
+                                    f.write(decoded_line + '\n')
+                                    f.flush()  # 즉시 디스크에 쓰기
+                                    line_count[0] += 1
+                        
+                        print(f"   [Logcat] 총 {line_count[0]} 라인 수집됨")
+                        
+                    except Exception as e:
+                        print(f"   ⚠ Logcat 스트리밍 오류: {str(e)[:50]}")
+                
+                logcat_thread = threading.Thread(target=stream_logcat_to_file, daemon=True)
+                logcat_thread.start()
+                self.logcat_thread = logcat_thread
+                
+                print(f"   ✓ Logcat 스트리밍 시작됨 → {self.logcat_file}")
+                time.sleep(1)
+                
+            except Exception as e:
+                print(f"   ⚠ Logcat 초기화 실패: {str(e)[:50]}")
+            
             # 1-1. Frida 서버 시작
             print(f"\n1-1. Frida 서버 시작 중...")
             
@@ -387,8 +444,22 @@ class deepguard_dynamic_analyzer:
             print(f"\n2-2. 추가 모니터링 중 (10초)...")
             time.sleep(10)
             
-            # 2-3. Frida 로그 및 모니터링 결과 수집
-            print(f"\n2-3. Frida 로그 및 모니터링 결과 수집...")
+            # 2-3. Logcat 스트리밍 종료
+            print(f"\n2-3. Logcat 수집 종료 중...")
+            try:
+                self.logcat_running = False
+                time.sleep(2)  # 스레드가 마지막 라인까지 쓸 시간 확보
+                
+                if hasattr(self, 'logcat_file') and os.path.exists(self.logcat_file):
+                    file_size = os.path.getsize(self.logcat_file)
+                    print(f"   ✓ Logcat 저장 완료: {self.logcat_file} ({file_size} bytes)")
+                else:
+                    print(f"   ⚠ 로그 파일 없음")
+            except Exception as e:
+                print(f"   ⚠ Logcat 종료 오류: {str(e)[:50]}")
+            
+            # 2-4. Frida 로그 및 모니터링 결과 수집
+            print(f"\n2-4. Frida 로그 및 모니터링 결과 수집...")
             
             # Frida API Monitor 출력 수집
             try:
@@ -507,33 +578,6 @@ class deepguard_dynamic_analyzer:
                 with open(result_file, "w", encoding="utf-8") as f:
                     json.dump(dynamic_result, f, indent=2, ensure_ascii=False)
                 print(f"   JSON 저장: {result_file}")
-                
-                # PDF 결과 저장
-                print(f"\n5. PDF 리포트 다운로드 중...")
-                pdf_url = f"{mobsf_url}/api/v1/dynamic/report_pdf"
-                pdf_data = {
-                    "hash": file_hash
-                }
-                
-                try:
-                    pdf_response = requests.post(
-                        pdf_url,
-                        headers=headers,
-                        data=pdf_data,
-                        timeout=60
-                    )
-                    
-                    if pdf_response.status_code == 200 and pdf_response.content:
-                        pdf_file = f"mobsf_dynamic_{file_hash}.pdf"
-                        with open(pdf_file, "wb") as f:
-                            f.write(pdf_response.content)
-                        print(f"   ✓ PDF 저장: {pdf_file}")
-                    else:
-                        print(f"   ⚠ PDF 다운로드 실패: {pdf_response.status_code}")
-                        if pdf_response.text:
-                            print(f"   응답: {pdf_response.text[:200]}")
-                except Exception as e:
-                    print(f"   ⚠ PDF 다운로드 오류: {str(e)[:50]}")
                 
                 return "success", []
             else:
@@ -697,8 +741,22 @@ class deepguard_dynamic_analyzer:
         #API3 함수 실행
         status, detected_tags = self.dynamic_environment(file_hash, package_name, run_id, hints=plan.get("hints"))
 
-        #API4 실행
-        reallogs = self.extract_logcat()
+        #API4 실행 - MobSF Logcat 파일 읽기
+        print("\nLogcat 파일 로드 중...")
+        logcat_file = f"mobsf_logcat_{file_hash}.txt"
+        
+        if os.path.exists(logcat_file):
+            try:
+                with open(logcat_file, 'r', encoding='utf-8') as f:
+                    reallogs = f.read()
+                print(f"✓ Logcat 로드 완료: {len(reallogs)} bytes")
+            except Exception as e:
+                print(f"⚠ Logcat 로드 실패: {str(e)[:50]}")
+                reallogs = ""
+        else:
+            print(f"⚠ Logcat 파일 없음: {logcat_file}")
+            reallogs = ""
+        
         filtered_logs = self.regex_filtering(reallogs, interpretation, mode)
         # subprocess.run([self.adb_path, "emu", "kill"], shell=False)
         
