@@ -328,6 +328,53 @@ class deepguard_dynamic_analyzer:
                         
                         if result.status_code == 200:
                             print(f"      ✓ 성공")
+                            
+                            # ResultActivity인 경우 "치료하기" 버튼 클릭
+                            if 'ResultActivity' in full_activity:
+                                time.sleep(3)  # 화면 완전 로드 대기
+                                print(f"      '치료하기' 버튼 클릭 시도...")
+                                
+                                try:
+                                    # UI Automator로 화면 덤프
+                                    dump_cmd = f'{self.adb_path} -s {self.device_name} shell uiautomator dump'
+                                    subprocess.run(dump_cmd, shell=True, timeout=10, capture_output=True)
+                                    
+                                    # XML 파일 가져오기
+                                    pull_cmd = f'{self.adb_path} -s {self.device_name} shell cat /sdcard/window_dump.xml'
+                                    xml_result = subprocess.run(pull_cmd, shell=True, timeout=10, capture_output=True, text=True)
+                                    
+                                    if xml_result.returncode == 0:
+                                        xml_content = xml_result.stdout
+                                        
+                                        # "치료하기" 텍스트 찾기
+                                        import re
+                                        pattern = r'text="치료하기"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"'
+                                        match = re.search(pattern, xml_content)
+                                        
+                                        if match:
+                                            x1, y1, x2, y2 = map(int, match.groups())
+                                            # 중앙 좌표 계산
+                                            center_x = (x1 + x2) // 2
+                                            center_y = (y1 + y2) // 2
+                                            
+                                            print(f"      '치료하기' 버튼 발견: ({center_x}, {center_y})")
+                                            
+                                            # 클릭
+                                            tap_cmd = f'{self.adb_path} -s {self.device_name} shell input tap {center_x} {center_y}'
+                                            tap_result = subprocess.run(tap_cmd, shell=True, timeout=5, capture_output=True)
+                                            
+                                            if tap_result.returncode == 0:
+                                                print(f"      ✓ 버튼 클릭 완료")
+                                                time.sleep(2)
+                                            else:
+                                                print(f"      ⚠ 클릭 실패")
+                                        else:
+                                            print(f"      ⚠ '치료하기' 버튼을 찾을 수 없음")
+                                    else:
+                                        print(f"      ⚠ UI 덤프 실패")
+                                        
+                                except Exception as e:
+                                    print(f"      ⚠ 버튼 클릭 오류: {str(e)[:50]}")
                         else:
                             print(f"      ⚠ 실패")
                         
